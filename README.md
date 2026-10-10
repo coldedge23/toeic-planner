@@ -2,6 +2,8 @@
 
 個人用的 TOEIC 備考網頁 App：繁體中文介面、英文題目。目前範圍是閱讀 Part 5–7。
 
+網址：https://coldedge23.github.io/toeic-planner/
+
 架構與決策紀錄：[docs/20261010_TOEIC備考App架構計畫_v2.md](docs/20261010_TOEIC備考App架構計畫_v2.md)
 
 ## 架構摘要
@@ -54,7 +56,7 @@ npm run preview:pages  # 以 /toeic-planner/ 為根路徑建置並預覽（模�
 | P3 | 模擬考：抽題（題組完整）、計時與暫停、續答、交卷、逐題解析、歷次成績 | 完成 |
 | P4 | 錯題本（自動收錄、錯題重考、連續答對 2 次封存、清空可復原）、JSON 備份匯出／還原 | 完成 |
 | P5 | 題庫匯入（Sheet CSV 網址或本機檔、預覽、錯誤定位、只收已審核、版本更新與下架）、CSV 匯出與範本 | 完成 |
-| P6 | PWA（離線可用、可加入主畫面）、頁面按需載入、GitHub Pages 自動部署 | 完成（待推送） |
+| P6 | PWA（離線可用、可加入主畫面）、頁面按需載入、GitHub Pages 自動部署 | 完成 |
 | P7 | Apps Script：建題庫 Sheet、每日與手動出題 | 未開始 |
 
 ## 限制
