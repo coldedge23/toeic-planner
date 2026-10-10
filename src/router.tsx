@@ -1,28 +1,28 @@
 import { createBrowserRouter, Navigate } from "react-router";
 import { AppShell } from "./components/AppShell";
-import { SettingsPage } from "./pages/SettingsPage";
-import { PlanPage } from "./pages/PlanPage";
 import { TodayPage } from "./pages/TodayPage";
-import { MockPage } from "./pages/MockPage";
-import { MistakesPage } from "./pages/MistakesPage";
-import { BankPage } from "./pages/BankPage";
-import { SessionPage } from "./pages/SessionPage";
-import { ResultPage } from "./pages/ResultPage";
 
+// 「今日」是首頁，直接打包；其餘頁面按需載入（圖表套件只在模擬考頁載入）
 export const router = createBrowserRouter(
   [
     {
       element: <AppShell />,
       children: [
         { index: true, element: <Navigate to="/today" replace /> },
-        { path: "settings", element: <SettingsPage /> },
-        { path: "plan", element: <PlanPage /> },
         { path: "today", element: <TodayPage /> },
-        { path: "mock", element: <MockPage /> },
-        { path: "mistakes", element: <MistakesPage /> },
-        { path: "bank", element: <BankPage /> },
-        { path: "sessions/:id", element: <SessionPage /> },
-        { path: "sessions/:id/result", element: <ResultPage /> },
+        { path: "settings", lazy: () => import("./pages/SettingsPage").then((m) => ({ Component: m.SettingsPage })) },
+        { path: "plan", lazy: () => import("./pages/PlanPage").then((m) => ({ Component: m.PlanPage })) },
+        { path: "mock", lazy: () => import("./pages/MockPage").then((m) => ({ Component: m.MockPage })) },
+        { path: "mistakes", lazy: () => import("./pages/MistakesPage").then((m) => ({ Component: m.MistakesPage })) },
+        { path: "bank", lazy: () => import("./pages/BankPage").then((m) => ({ Component: m.BankPage })) },
+        {
+          path: "sessions/:id",
+          lazy: () => import("./pages/SessionPage").then((m) => ({ Component: m.SessionPage })),
+        },
+        {
+          path: "sessions/:id/result",
+          lazy: () => import("./pages/ResultPage").then((m) => ({ Component: m.ResultPage })),
+        },
         { path: "*", element: <Navigate to="/today" replace /> },
       ],
     },

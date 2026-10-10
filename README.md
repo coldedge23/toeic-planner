@@ -19,7 +19,19 @@ npm run dev        # http://localhost:5173
 npm test           # 單元測試（Vitest + fake-indexeddb）
 npm run typecheck
 npm run build      # 輸出到 dist/
+npm run preview:pages  # 以 /toeic-planner/ 為根路徑建置並預覽（模擬 GitHub Pages）
 ```
+
+## 部署（GitHub Pages）
+
+推送到 `main` 後，`.github/workflows/deploy.yml` 會自動：安裝套件 → 執行測試 → 以 `/<repo 名稱>/` 為根路徑建置 → 部署到 `https://<帳號>.github.io/<repo 名稱>/`。測試沒過就不會部署。
+
+第一次需在 GitHub repo 的 Settings → Pages → Build and deployment → Source 選「GitHub Actions」。
+
+## 手機使用
+
+- 用手機瀏覽器開啟網址後，「加入主畫面」即可像 App 一樣開啟（PWA），開過一次後離線也能作答。
+- 電腦與手機的紀錄各自獨立，換裝置時用「設定 → 備份與還原」搬移。
 
 ## 目錄
 
@@ -42,7 +54,8 @@ npm run build      # 輸出到 dist/
 | P3 | 模擬考：抽題（題組完整）、計時與暫停、續答、交卷、逐題解析、歷次成績 | 完成 |
 | P4 | 錯題本（自動收錄、錯題重考、連續答對 2 次封存、清空可復原）、JSON 備份匯出／還原 | 完成 |
 | P5 | 題庫匯入（Sheet CSV 網址或本機檔、預覽、錯誤定位、只收已審核、版本更新與下架）、CSV 匯出與範本 | 完成 |
-| P6–P7 | 部署與 PWA、Apps Script | 未開始 |
+| P6 | PWA（離線可用、可加入主畫面）、頁面按需載入、GitHub Pages 自動部署 | 完成（待推送） |
+| P7 | Apps Script：建題庫 Sheet、每日與手動出題 | 未開始 |
 
 ## 限制
 
