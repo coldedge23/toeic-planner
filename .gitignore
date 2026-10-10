@@ -11,3 +11,6 @@ dist/
 
 # 本機用的操作手冊匯出檔，不公開
 /*.docx
+
+# Impeccable 設計審查報告（本機工作檔）
+.impeccable/
