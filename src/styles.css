@@ -809,7 +809,6 @@ a.btn {
   padding: 24px;
   overflow-y: auto;
   border: 1px solid var(--c-border);
-  border-top: 3px solid var(--c-primary);
   border-radius: var(--radius);
   background: var(--c-card);
   color: var(--c-text);
