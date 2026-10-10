@@ -5,6 +5,7 @@ import { createDexieRepositories } from "@/storage/dexie/DexieRepositories";
 import { defaultSettingsInput } from "@/domain/settings";
 import { BackupSchema } from "@/domain/schema";
 import { demoQuestions } from "@/fixtures/demo-bank";
+import { buildPlanRecords, generatePlanTasks, previewReschedule } from "@/domain/planner";
 
 let db: ToeicDB;
 let repos: ReturnType<typeof createDexieRepositories>;
@@ -68,6 +69,94 @@ describe("BankRepository", () => {
     const p7 = await repos.bank.listApproved([7]);
     expect(p7.length).toBe(demoQuestions.filter((q) => q.part === 7).length);
     expect(p7.every((q) => q.part === 7)).toBe(true);
+  });
+});
+
+describe("PlansRepository", () => {
+  const settings = { ...defaultSettingsInput(), exam_date: "2026-12-13" };
+  const build = (start: string, version: number, s = settings) => {
+    const r = generatePlanTasks(s, start);
+    if (!r.ok) throw new Error(r.error);
+    return buildPlanRecords({
+      settings: s,
+      startDate: start,
+      tasks: r.tasks,
+      version,
+      now: new Date().toISOString(),
+      newId: () => crypto.randomUUID(),
+    });
+  };
+
+  it("建立計畫後可讀回；已有計畫時不可重複建立", async () => {
+    const { plan, tasks } = build("2026-10-12", 1);
+    await repos.plans.createPlan(plan, tasks);
+    expect((await repos.plans.getActivePlan())?.id).toBe(plan.id);
+    expect(await repos.plans.listTasks(plan.id)).toHaveLength(tasks.length);
+    const again = build("2026-10-12", 1);
+    await expect(repos.plans.createPlan(again.plan, again.tasks)).rejects.toThrow();
+    expect(await db.study_plans.count()).toBe(1);
+  });
+
+  it("勾選與取消勾選", async () => {
+    const { plan, tasks } = build("2026-10-12", 1);
+    await repos.plans.createPlan(plan, tasks);
+    await repos.plans.setTaskCompleted(tasks[0].id, true);
+    expect((await db.study_tasks.get(tasks[0].id))?.completed_at).not.toBeNull();
+    await repos.plans.setTaskCompleted(tasks[0].id, false);
+    expect((await db.study_tasks.get(tasks[0].id))?.completed_at).toBeNull();
+  });
+
+  it("重新排程：保留已完成任務、舊計畫標為 superseded 且未完成任務不刪", async () => {
+    const first = build("2026-10-12", 1);
+    await repos.plans.createPlan(first.plan, first.tasks);
+    const doneTask = first.tasks[0];
+    await repos.plans.setTaskCompleted(doneTask.id, true);
+
+    const today = "2026-10-20";
+    const oldTasks = await repos.plans.listTasks(first.plan.id);
+    const regenerated = generatePlanTasks({ ...settings, daily_minutes: 90 }, today);
+    if (!regenerated.ok) throw new Error();
+    const preview = previewReschedule(oldTasks, regenerated.tasks, today);
+    const next = buildPlanRecords({
+      settings: { ...settings, daily_minutes: 90 },
+      startDate: today,
+      tasks: preview.added,
+      version: 2,
+      now: new Date().toISOString(),
+      newId: () => crypto.randomUUID(),
+    });
+    await repos.plans.applyReschedule({
+      oldPlanId: first.plan.id,
+      newPlan: next.plan,
+      newTasks: next.tasks,
+      keptTaskIds: preview.kept.map((t) => t.id),
+    });
+
+    const active = await repos.plans.getActivePlan();
+    expect(active?.id).toBe(next.plan.id);
+    expect(active?.version).toBe(2);
+    expect((await db.study_plans.get(first.plan.id))?.status).toBe("superseded");
+    const activeTasks = await repos.plans.listTasks(next.plan.id);
+    expect(activeTasks.find((t) => t.id === doneTask.id)?.completed_at).not.toBeNull();
+    expect(activeTasks).toHaveLength(next.tasks.length + 1);
+    expect(await repos.plans.listTasks(first.plan.id)).toHaveLength(first.tasks.length - 1);
+  });
+
+  it("重新排程失敗時資料完全不變", async () => {
+    const first = build("2026-10-12", 1);
+    await repos.plans.createPlan(first.plan, first.tasks);
+    const next = build("2026-10-20", 2);
+    await expect(
+      repos.plans.applyReschedule({
+        oldPlanId: first.plan.id,
+        newPlan: next.plan,
+        newTasks: next.tasks,
+        keptTaskIds: [first.tasks[0].id], // 尚未完成，不能被保留
+      }),
+    ).rejects.toThrow();
+    expect((await repos.plans.getActivePlan())?.id).toBe(first.plan.id);
+    expect(await db.study_plans.count()).toBe(1);
+    expect(await db.study_tasks.count()).toBe(first.tasks.length);
   });
 });
 

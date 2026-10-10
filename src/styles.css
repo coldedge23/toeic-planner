@@ -513,3 +513,185 @@ textarea {
   color: var(--c-muted);
   font-size: 14px;
 }
+
+/* ---------- P2：計畫與任務 ---------- */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+.muted {
+  color: var(--c-muted);
+  font-weight: 400;
+}
+.nowrap {
+  white-space: nowrap;
+}
+.plan-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+.plan-head h2 {
+  margin-bottom: 4px;
+}
+.plan-head .card-desc {
+  margin: 0 0 12px;
+}
+.card-emphasis {
+  border-color: var(--c-primary);
+  border-width: 2px;
+}
+.notice-warn {
+  border-style: solid;
+  border-color: #c9b98f;
+  background: #f5edd6;
+  color: var(--c-text);
+}
+.sub-title {
+  margin: 16px 0 8px;
+  font-size: 15px;
+  font-weight: 700;
+}
+.diff-summary {
+  margin: 0;
+  padding-left: 20px;
+  font-size: 15px;
+}
+.diff-summary strong {
+  font-weight: 600;
+}
+.table-scroll {
+  overflow-x: auto;
+}
+.diff-table td {
+  vertical-align: top;
+  min-width: 120px;
+}
+.btn-text {
+  min-height: 40px;
+  margin-top: 12px;
+  padding: 0;
+  border: 0;
+  background: none;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.btn-text:hover {
+  background: none;
+}
+.inline-check {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 40px;
+  font-size: 14px;
+  cursor: pointer;
+}
+.inline-check input {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--c-primary);
+}
+
+.tag {
+  display: inline-block;
+  padding: 0 8px;
+  border: 1px solid var(--c-border);
+  border-radius: var(--radius);
+  background: #fff;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 22px;
+  color: var(--c-muted);
+}
+.tag-today {
+  border-color: var(--c-primary);
+  background: var(--c-primary);
+  color: #fff;
+}
+.tag-mock {
+  border-color: #b79a55;
+  color: #6f5a24;
+}
+.tag-inline {
+  margin-left: 10px;
+  vertical-align: 3px;
+}
+
+.date-group + .date-group {
+  margin-top: 18px;
+}
+.date-group:first-of-type {
+  margin-top: 4px;
+}
+.date-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 8px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--c-border);
+}
+.date-head h3 {
+  font-size: 15px;
+  font-weight: 600;
+  margin-right: 4px;
+}
+.date-meta {
+  margin-left: auto;
+  font-size: 13px;
+  color: var(--c-muted);
+}
+
+.task-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.task {
+  border-bottom: 1px solid var(--c-border);
+}
+.task:last-child {
+  border-bottom: 0;
+}
+.task-label {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 48px;
+  padding: 8px 2px;
+  cursor: pointer;
+}
+.task-check {
+  flex: none;
+  width: 20px;
+  height: 20px;
+  margin: 0;
+  accent-color: var(--c-primary);
+  cursor: pointer;
+}
+.task-title {
+  flex: 1;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.task-date {
+  margin-right: 8px;
+  color: var(--c-muted);
+  font-size: 14px;
+}
+.task-minutes {
+  flex: none;
+  font-size: 14px;
+  color: var(--c-muted);
+}
+.task.done .task-title {
+  text-decoration: line-through;
+  color: var(--c-muted);
+}

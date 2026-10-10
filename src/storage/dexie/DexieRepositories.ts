@@ -3,6 +3,8 @@ import {
   SCHEMA_VERSION,
   SettingsInputSchema,
   SettingsSchema,
+  StudyPlanSchema,
+  StudyTaskSchema,
   TIMEZONE,
   type Part,
   type Settings,
@@ -43,6 +45,44 @@ export function createDexieRepositories(db: ToeicDB): Repositories {
       },
       async listTasks(planId) {
         return db.study_tasks.where("plan_id").equals(planId).sortBy("date");
+      },
+      async createPlan(plan, tasks) {
+        const validPlan = StudyPlanSchema.parse(plan);
+        const validTasks = tasks.map((t) => StudyTaskSchema.parse(t));
+        await db.transaction("rw", db.study_plans, db.study_tasks, async () => {
+          if ((await db.study_plans.where("status").equals("active").count()) > 0) {
+            throw new Error("已有生效中的計畫，請改用重新排程");
+          }
+          await db.study_plans.add(validPlan);
+          await db.study_tasks.bulkAdd(validTasks);
+        });
+      },
+      async applyReschedule({ oldPlanId, newPlan, newTasks, keptTaskIds }) {
+        const validPlan = StudyPlanSchema.parse(newPlan);
+        const validTasks = newTasks.map((t) => StudyTaskSchema.parse(t));
+        await db.transaction("rw", db.study_plans, db.study_tasks, async () => {
+          const old = await db.study_plans.get(oldPlanId);
+          if (!old || old.status !== "active") throw new Error("原計畫已不是生效中的版本，請重新整理後再試");
+          const now = nowIso();
+          await db.study_plans.update(oldPlanId, { status: "superseded", updated_at: now });
+          await db.study_plans.add(validPlan);
+          for (const id of keptTaskIds) {
+            const task = await db.study_tasks.get(id);
+            if (!task || task.plan_id !== oldPlanId || task.completed_at === null) {
+              throw new Error("保留的任務狀態已變更，請重新預覽");
+            }
+            await db.study_tasks.update(id, { plan_id: validPlan.id, updated_at: now });
+          }
+          await db.study_tasks.bulkAdd(validTasks);
+        });
+      },
+      async setTaskCompleted(taskId, completed) {
+        const now = nowIso();
+        const updated = await db.study_tasks.update(taskId, {
+          completed_at: completed ? now : null,
+          updated_at: now,
+        });
+        if (updated === 0) throw new Error("找不到這項任務");
       },
     },
 

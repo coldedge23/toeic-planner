@@ -23,6 +23,20 @@ export interface SettingsRepository {
 export interface PlansRepository {
   getActivePlan(): Promise<StudyPlan | null>;
   listTasks(planId: string): Promise<StudyTask[]>;
+  /** 建立第一份計畫；已有生效中的計畫時拋出錯誤（請改用 applyReschedule）。 */
+  createPlan(plan: StudyPlan, tasks: StudyTask[]): Promise<void>;
+  /**
+   * 原子性地套用重新排程：舊計畫標為 superseded（其未完成任務留在舊計畫不刪），
+   * 已完成任務移到新計畫，再寫入新任務。任一步失敗時全部不變。
+   */
+  applyReschedule(input: {
+    oldPlanId: string;
+    newPlan: StudyPlan;
+    newTasks: StudyTask[];
+    keptTaskIds: string[];
+  }): Promise<void>;
+  /** 勾選或取消勾選任務；完成時間是唯一的進度來源。 */
+  setTaskCompleted(taskId: string, completed: boolean): Promise<void>;
 }
 
 export interface BankStats {
