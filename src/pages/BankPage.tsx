@@ -360,7 +360,7 @@ export function BankPage() {
       <section className="card">
         <h2>AI 出題</h2>
         <p className="notice">
-          AI 出題在題庫 Sheet 裡由 Apps Script 執行：每天 06:00 自動出題，或從 Sheet 選單手動出一批。新題目先標為「草稿」，改成「已審核」後再按「重新載入」才會進入題庫（P7 建置）。
+          AI 出題在題庫 Sheet 裡由 Apps Script 執行：每天 06:00 自動出題，或從 Sheet 選單手動出一批。新題目預設標為「草稿」，改成「已審核」後再按「重新載入」才會進入題庫；Sheet「設定」分頁開啟「自動審核」時，AI 複核答案一致的題目會直接標為「已審核」。
         </p>
       </section>
 
