@@ -741,13 +741,74 @@ a.btn {
   border: 1px solid var(--c-border);
   border-radius: var(--radius);
 }
-.session-bar .timer {
+.session-bar .timer-box {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 10px;
   margin-right: auto;
+}
+.session-bar .timer {
+  margin: 0;
   font-size: 18px;
   font-weight: 500;
+  color: var(--c-text);
 }
 .session-bar .timer.low {
   color: var(--c-wrong-line);
+}
+/* 時間提醒：文字標示，不只靠顏色 */
+.timer-warn {
+  padding: 1px 8px;
+  border: 1px solid var(--c-border);
+  border-radius: var(--radius);
+  font-size: 13px;
+  color: var(--c-muted);
+  white-space: nowrap;
+}
+.timer-warn.low {
+  border-color: var(--c-wrong-line);
+  color: var(--c-wrong-line);
+  font-weight: 500;
+}
+
+/* 對話框（原生 dialog，浮在畫面中央） */
+.modal {
+  width: min(440px, calc(100vw - 32px));
+  max-height: calc(100dvh - 48px);
+  padding: 24px;
+  overflow-y: auto;
+  border: 1px solid var(--c-border);
+  border-top: 3px solid var(--c-primary);
+  border-radius: var(--radius);
+  background: var(--c-card);
+  color: var(--c-text);
+  box-shadow: 0 16px 40px rgba(13, 34, 53, 0.22);
+}
+.modal::backdrop {
+  background: rgba(13, 34, 53, 0.5);
+}
+.modal h2 {
+  margin-bottom: 10px;
+  font-size: 19px;
+}
+.modal-desc {
+  margin: 0 0 8px;
+  font-size: 15px;
+  color: var(--c-text);
+}
+.modal-jumps {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 4px 0 14px;
+}
+.modal-jumps .palette-btn {
+  min-width: 44px;
+  height: 44px;
+}
+.modal .actions {
+  margin-top: 16px;
 }
 @media (max-width: 767px) {
   .session-bar {

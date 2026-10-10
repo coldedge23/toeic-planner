@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Link, Navigate, useNavigate, useParams } from "react-router";
+import { Link, Navigate, useBlocker, useNavigate, useParams } from "react-router";
 import { useLiveQuery } from "dexie-react-hooks";
 import { repos } from "@/storage";
+import { Modal } from "@/components/Modal";
 import { Passage, questionHeading } from "@/components/QuestionParts";
 import {
   activeElapsedMs,
@@ -28,6 +29,14 @@ export function SessionPage() {
   const contentRef = useRef<HTMLDivElement>(null);
 
   const session = data?.session;
+  const inProgress = session?.status === "in_progress";
+
+  // 作答中點側欄或上一頁時先確認；交卷本身的跳轉不攔
+  const blocker = useBlocker(
+    ({ currentLocation, nextLocation }) =>
+      inProgress && !submitting.current && currentLocation.pathname !== nextLocation.pathname,
+  );
+
   const pages = useMemo(() => (session ? pageUnits(session) : []), [session]);
   const selected = useMemo(
     () => new Map((data?.answers ?? []).map((a) => [a.question_id, a.selected_key])),
@@ -77,7 +86,6 @@ export function SessionPage() {
 
   const total = session.question_snapshot.length;
   const answeredCount = session.question_snapshot.filter((it) => (selected.get(it.question.id) ?? null) !== null).length;
-  const unanswered = total - answeredCount;
   const left = remainingMs(session, now);
   const paused = session.paused_at !== null;
   const page = pages[pageIndex];
@@ -115,6 +123,22 @@ export function SessionPage() {
   };
 
   const lowTime = left !== null && left <= 60_000;
+  const timeWarning = left === null || paused ? null : left <= 60_000 ? "剩不到 1 分鐘" : left <= 300_000 ? "剩不到 5 分鐘" : null;
+  const unansweredNos = session.question_snapshot
+    .map((it, i) => ((selected.get(it.question.id) ?? null) === null ? i : -1))
+    .filter((i) => i >= 0);
+  const pageOf = (questionIndex: number) => pages.findIndex((idx) => idx.includes(questionIndex));
+
+  const pauseAndLeave = async () => {
+    try {
+      if (!paused) await repos.sessions.pause(session.id, new Date());
+      blocker.proceed?.();
+    } catch (err) {
+      console.error(err);
+      blocker.reset?.();
+      setError("暫停失敗，請再試一次");
+    }
+  };
 
   return (
     <div className="session">
@@ -122,8 +146,14 @@ export function SessionPage() {
         <span className="num">
           已答 <strong>{answeredCount}</strong>/{total}
         </span>
-        <span className={`timer num${lowTime ? " low" : ""}`} aria-label="剩餘時間">
-          {left === null ? `已用 ${formatDuration(activeElapsedMs(session, now))}` : `剩 ${formatDuration(left)}`}
+        <span className="timer-box">
+          <span className={`timer num${lowTime ? " low" : ""}`}>
+            {left === null ? `已用 ${formatDuration(activeElapsedMs(session, now))}` : `剩 ${formatDuration(left)}`}
+          </span>
+          {timeWarning && <span className={`timer-warn${lowTime ? " low" : ""}`}>{timeWarning}</span>}
+        </span>
+        <span className="sr-only" aria-live="assertive">
+          {timeWarning && `${timeWarning}，時間到會自動交卷`}
         </span>
         <button type="button" className="btn btn-small" onClick={togglePause}>
           {paused ? "繼續" : "暫停"}
@@ -133,23 +163,53 @@ export function SessionPage() {
         </button>
       </div>
 
-      {confirming && (
-        <div className="card card-emphasis" role="alertdialog" aria-labelledby="confirm-title">
-          <h2 id="confirm-title">確定交卷？</h2>
-          <p className="card-desc num">
-            {unanswered > 0 ? `還有 ${unanswered} 題未作答，未作答的題目會算答錯。` : "所有題目都已作答。"}
-            交卷後答案會鎖定，不能再修改。
-          </p>
-          <div className="actions" style={{ marginTop: 0 }}>
-            <button type="button" className="btn btn-primary" onClick={() => void submit()}>
-              確定交卷
-            </button>
-            <button type="button" className="btn" onClick={() => setConfirming(false)}>
-              繼續作答
-            </button>
-          </div>
+      <Modal open={confirming} onClose={() => setConfirming(false)} labelledBy="confirm-title">
+        <h2 id="confirm-title">確定交卷？</h2>
+        {unansweredNos.length > 0 ? (
+          <>
+            <p className="modal-desc num">還有 {unansweredNos.length} 題未作答，未作答的題目會算答錯。點題號可以回去作答：</p>
+            <div className="modal-jumps">
+              {unansweredNos.map((i) => (
+                <button
+                  key={i}
+                  type="button"
+                  className="palette-btn num"
+                  aria-label={`回到第 ${i + 1} 題`}
+                  onClick={() => goTo(pageOf(i))}
+                >
+                  {i + 1}
+                </button>
+              ))}
+            </div>
+          </>
+        ) : (
+          <p className="modal-desc">所有題目都已作答。</p>
+        )}
+        <p className="modal-desc">交卷後答案會鎖定，不能再修改。</p>
+        <div className="actions">
+          <button type="button" className="btn btn-primary" data-autofocus onClick={() => void submit()}>
+            確定交卷
+          </button>
+          <button type="button" className="btn" onClick={() => setConfirming(false)}>
+            繼續作答
+          </button>
         </div>
-      )}
+      </Modal>
+
+      <Modal open={blocker.state === "blocked"} onClose={() => blocker.reset?.()} labelledBy="leave-title">
+        <h2 id="leave-title">離開這場測驗？</h2>
+        <p className="modal-desc">
+          已作答的答案都已儲存。離開時會先暫停計時，之後可以從「模擬考」頁回來繼續作答。
+        </p>
+        <div className="actions">
+          <button type="button" className="btn btn-primary" data-autofocus onClick={() => void pauseAndLeave()}>
+            暫停並離開
+          </button>
+          <button type="button" className="btn" onClick={() => blocker.reset?.()}>
+            繼續作答
+          </button>
+        </div>
+      </Modal>
 
       {error && (
         <p className="notice notice-warn" role="alert">
