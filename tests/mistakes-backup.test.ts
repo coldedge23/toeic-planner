@@ -141,6 +141,21 @@ describe("Dexie：錯題與備份", () => {
     expect(active.every((e) => e.question !== null)).toBe(true);
   });
 
+  it("錯題附上文章、題組內順序與最後一次答錯的作答", async () => {
+    const p6 = demoQuestions.filter((q) => q.part === 6).sort((a, b) => a.source_id.localeCompare(b.source_id));
+    const target = p6[1];
+    const wrongKey = target.correct_key === "A" ? "B" : "A";
+    await takeSession([target], () => false);
+    // 之後答對一次：最後答錯的紀錄仍是前一次
+    await takeSession([target], () => true, "mistakes");
+    const [entry] = await repos.mistakes.listActive();
+    expect(entry.question?.id).toBe(target.id);
+    expect(entry.group?.id).toBe(target.group_id);
+    expect(entry.positionInGroup).toBe(1);
+    expect(entry.lastWrong).toEqual({ selected_key: wrongKey, submitted_at: T0.toISOString() });
+    expect(entry.item.correct_streak).toBe(1);
+  });
+
   it("錯題本出題：錯→對→對後封存；清空可以復原", async () => {
     const [a, b] = demoQuestions.filter((q) => q.part === 5);
     await takeSession([a, b], () => false);

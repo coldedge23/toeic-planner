@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { Link } from "react-router";
 import { useLiveQuery } from "dexie-react-hooks";
-import { PageHeader, StatCard } from "@/components/ui";
+import { CheckIcon, CrossIcon, PageHeader, StatCard } from "@/components/ui";
+import { blankNumber, Passage, questionHeading } from "@/components/QuestionParts";
 import { repos } from "@/storage";
 import type { MistakeEntry } from "@/storage/Repository";
 import { MASTERY_STREAK } from "@/domain/mistake-policy";
@@ -9,22 +10,48 @@ import { PART_LABELS } from "@/domain/schema";
 
 const dateFmt = new Intl.DateTimeFormat("zh-TW", { timeZone: "Asia/Taipei", month: "numeric", day: "numeric" });
 
+/** 列表摘要：Part 6 顯示「空格 [n]＋文章標題」，其他題型顯示題幹 */
+function summaryText(entry: MistakeEntry) {
+  const { question, group, positionInGroup } = entry;
+  if (!question) return entry.item.question_id;
+  const blank = blankNumber(question, positionInGroup);
+  if (blank === null) return question.stem;
+  const first = group?.passages[0];
+  const lead = first ? first.title || first.body.replace(/\s+/g, " ").slice(0, 60) : "";
+  return `空格 [${blank}]${lead ? `｜${lead}` : ""}`;
+}
+
+/** 展開時把文章框捲到這題的空格，不用自己找 */
+function scrollToActiveBlank(details: HTMLElement) {
+  const box = details.querySelector<HTMLElement>(".mistake-passage");
+  const blank = box?.querySelector<HTMLElement>(".blank.active");
+  if (!box || !blank) return;
+  const offset = blank.getBoundingClientRect().top - box.getBoundingClientRect().top;
+  box.scrollTop += offset - box.clientHeight / 3;
+}
+
 function MistakeRow({ entry, onRestore }: { entry: MistakeEntry; onRestore?: () => void }) {
-  const { item, question } = entry;
+  const { item, question, group, positionInGroup, lastWrong } = entry;
   const archivedLabel =
     item.archive_reason === "mastered" ? `已熟練（連續答對 ${MASTERY_STREAK} 次）` : item.archive_reason === "cleared" ? "清空" : "";
+  const picked = lastWrong?.selected_key ?? null;
+  const blank = question ? blankNumber(question, positionInGroup) : null;
   return (
     <li className="mistake">
-      <details>
+      <details onToggle={(e) => e.currentTarget.open && scrollToActiveBlank(e.currentTarget)}>
         <summary>
           <span className="mistake-main">
-            <span className="mistake-part">{question ? PART_LABELS[question.part] : "題目已不在題庫"}</span>
-            <span className="mistake-stem" lang="en">
-              {question ? question.stem || "（段落填空題）" : item.question_id}
+            <span className="mistake-part">
+              {question ? PART_LABELS[question.part] : "題目已不在題庫"}
+              {question?.part === 7 && group?.passages[0]?.title ? `｜${group.passages[0].title}` : ""}
+            </span>
+            <span className="mistake-stem" lang={blank === null ? "en" : undefined}>
+              {summaryText(entry)}
             </span>
           </span>
           <span className="mistake-meta num">
             答錯 {item.wrong_count} 次
+            {lastWrong && `・最後答錯 ${dateFmt.format(new Date(lastWrong.submitted_at))}`}
             {item.state === "active"
               ? `・連續答對 ${item.correct_streak}/${MASTERY_STREAK}`
               : `・${archivedLabel}・${dateFmt.format(new Date(item.archived_at!))}`}
@@ -32,16 +59,41 @@ function MistakeRow({ entry, onRestore }: { entry: MistakeEntry; onRestore?: () 
         </summary>
         {question && (
           <div className="mistake-detail">
+            {group && (
+              <div className="mistake-passage" role="region" aria-label="文章" tabIndex={0}>
+                <Passage group={group} activeBlank={blank ?? undefined} />
+              </div>
+            )}
+            <p className="question-stem">{questionHeading(question, positionInGroup)}</p>
+            {lastWrong && picked === null && <p className="mistake-note">上次這題沒有作答。</p>}
             <ul className="options review-options">
-              {question.options.map((o) => (
-                <li key={o.key} className={`option${o.key === question.correct_key ? " answer" : ""}`}>
-                  <span className="option-key">{o.key}</span>
-                  <span className="option-text" lang="en">
-                    {o.text}
-                  </span>
-                  {o.key === question.correct_key && <span className="option-flag ok">正解</span>}
-                </li>
-              ))}
+              {question.options.map((o) => {
+                const isAnswer = o.key === question.correct_key;
+                const isPicked = o.key === picked;
+                return (
+                  <li
+                    key={o.key}
+                    className={`option${isAnswer ? " answer" : isPicked ? " picked-wrong" : ""}`}
+                  >
+                    <span className="option-key">{o.key}</span>
+                    <span className="option-text" lang="en">
+                      {o.text}
+                    </span>
+                    {isAnswer && (
+                      <span className="option-flag ok">
+                        <CheckIcon />
+                        正解
+                      </span>
+                    )}
+                    {isPicked && !isAnswer && (
+                      <span className="option-flag bad">
+                        <CrossIcon />
+                        你上次的答案
+                      </span>
+                    )}
+                  </li>
+                );
+              })}
             </ul>
             <div className="explanation">
               <strong>解析</strong>

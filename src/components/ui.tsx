@@ -40,3 +40,19 @@ export function Upcoming({ stage, children }: { stage: string; children: ReactNo
     </p>
   );
 }
+
+/** 對錯標示圖示：搭配文字使用，不單靠顏色 */
+export function CheckIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true">
+      <path d="M3 8.5l3.2 3L13 4.5" fill="none" stroke="currentColor" strokeWidth="2" />
+    </svg>
+  );
+}
+export function CrossIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true">
+      <path d="M4 4l8 8M12 4l-8 8" fill="none" stroke="currentColor" strokeWidth="2" />
+    </svg>
+  );
+}

@@ -29,9 +29,40 @@ import type { ToeicDB } from "./db";
 
 export function createDexieRepositories(db: ToeicDB): Repositories {
   const withQuestions = async (items: MistakeItem[]): Promise<MistakeEntry[]> => {
-    const questions = await db.questions.bulkGet(items.map((i) => i.question_id));
+    const questionIds = items.map((i) => i.question_id);
+    const questions = await db.questions.bulkGet(questionIds);
+    const groupIds = [...new Set(questions.flatMap((q) => (q?.group_id ? [q.group_id] : [])))];
+    const [groups, siblings, attempts] = await Promise.all([
+      db.content_groups.bulkGet(groupIds),
+      groupIds.length ? db.questions.where("group_id").anyOf(groupIds).toArray() : [],
+      questionIds.length ? db.attempts.where("question_id").anyOf(questionIds).toArray() : [],
+    ]);
+    const groupById = new Map(groups.flatMap((g) => (g ? [[g.id, g] as const] : [])));
+    const lastWrong = new Map<string, (typeof attempts)[number]>();
+    for (const a of attempts) {
+      if (a.is_correct) continue;
+      const prev = lastWrong.get(a.question_id);
+      if (!prev || a.submitted_at > prev.submitted_at) lastWrong.set(a.question_id, a);
+    }
     return items
-      .map((item, i) => ({ item, question: questions[i] ?? null }))
+      .map((item, i) => {
+        const question = questions[i] ?? null;
+        const group = question?.group_id ? (groupById.get(question.group_id) ?? null) : null;
+        const order = group
+          ? siblings
+              .filter((q) => q.group_id === group.id)
+              .sort((a, b) => a.source_id.localeCompare(b.source_id))
+              .map((q) => q.id)
+          : [];
+        const wrong = lastWrong.get(item.question_id);
+        return {
+          item,
+          question,
+          group,
+          positionInGroup: Math.max(0, order.indexOf(item.question_id)),
+          lastWrong: wrong ? { selected_key: wrong.selected_key, submitted_at: wrong.submitted_at } : null,
+        };
+      })
       .sort((a, b) => b.item.updated_at.localeCompare(a.item.updated_at));
   };
 

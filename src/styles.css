@@ -1041,6 +1041,11 @@ label.option:hover {
   text-align: center;
 }
 
+.blank.active {
+  background: var(--c-primary);
+  color: #fff;
+}
+
 /* Part 6／7：桌機左右對照，文章欄獨立捲動 */
 @media (min-width: 1024px) {
   .question-card.with-passage .split {
@@ -1260,6 +1265,20 @@ label.option:hover {
 }
 .mistake-detail {
   margin: 12px 0 4px 14px;
+}
+.mistake-passage {
+  max-height: 22rem;
+  margin-bottom: 14px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+.mistake-passage .passages {
+  margin-bottom: 0;
+}
+.mistake-note {
+  margin: -4px 0 10px;
+  font-size: 14px;
+  color: var(--c-wrong-line);
 }
 .inline-btn {
   min-height: 0;

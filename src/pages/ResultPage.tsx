@@ -12,21 +12,8 @@ import {
   type GradedItem,
 } from "@/domain/exam-engine";
 import { PART_LABELS } from "@/domain/schema";
+import { CheckIcon, CrossIcon } from "@/components/ui";
 
-function CheckIcon() {
-  return (
-    <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true">
-      <path d="M3 8.5l3.2 3L13 4.5" fill="none" stroke="currentColor" strokeWidth="2" />
-    </svg>
-  );
-}
-function CrossIcon() {
-  return (
-    <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true">
-      <path d="M4 4l8 8M12 4l-8 8" fill="none" stroke="currentColor" strokeWidth="2" />
-    </svg>
-  );
-}
 
 function ReviewItem({ item, total, posInGroup }: { item: GradedItem; total: number; posInGroup: number }) {
   const { question, selected, isCorrect } = item;

@@ -101,6 +101,12 @@ export interface MistakeEntry {
   item: MistakeItem;
   /** 題庫中目前的題目；題目已被刪除時為 null */
   question: Question | null;
+  /** Part 6／7 的文章題組；Part 5 或題組已不在題庫時為 null */
+  group: ContentGroup | null;
+  /** 在題組中的順序（0 起算，依 source_id 排序，與出題順序相同）；用來推算 Part 6 的空格編號 */
+  positionInGroup: number;
+  /** 最後一次答錯時的作答；selected_key 為 null 表示未作答 */
+  lastWrong: { selected_key: OptionKey | null; submitted_at: string } | null;
 }
 
 export interface MistakesRepository {
