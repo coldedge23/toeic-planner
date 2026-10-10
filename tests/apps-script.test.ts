@@ -115,6 +115,63 @@ describe("Code.gs 純函式", () => {
     expect(result.counts.approved).toBe(1 + 4 + 3);
   });
 
+  it("buildVerifyPrompt：附上文章、題目與選項，但不洩漏正解與解析", () => {
+    const rows = gs.buildRows(6, "中階", { groups: [p6Group()] }, [], "2026-10-10", 30).rows;
+    const prompt: string = gs.buildVerifyPrompt(rows);
+    expect(prompt).toContain("=== Passage (P6-G001) ===");
+    expect(prompt.match(/=== Passage/g)).toHaveLength(1);
+    expect(prompt).toContain("[P6-0001] [1]");
+    expect(prompt).toContain("(D) opt4d");
+    expect(prompt).not.toContain("原形動詞");
+  });
+
+  it("parseVerifyJson 容許圍欄、答案轉大寫；格式錯誤時報錯", () => {
+    expect(gs.parseVerifyJson('```json\n{"answers":[{"id":"P5-0001","answer":"b"}]}\n```')).toEqual({ "P5-0001": "B" });
+    expect(() => gs.parseVerifyJson('{"groups":[]}')).toThrow();
+  });
+
+  it("applyVerification：Part 5 逐題判定；題組只要一題不一致整組維持草稿", () => {
+    const p5 = gs.buildRows(
+      5,
+      "中階",
+      { groups: [{ passage: "", questions: [q()] }, { passage: "", questions: [q({ question: "Second ------- one." })] }] },
+      [],
+      "2026-10-10",
+      30,
+    ).rows;
+    const r5 = gs.applyVerification(p5, { "P5-0001": "A", "P5-0002": "C" });
+    expect(p5.map((r: unknown[]) => r[13])).toEqual(["已審核", "草稿"]);
+    expect(r5.approved).toBe(1);
+    expect(r5.mismatched[0]).toContain("P5-0002");
+
+    const p6 = gs.buildRows(6, "中階", { groups: [p6Group(), p6Group("Other [1] [2] [3] [4].")] }, [], "2026-10-10", 30).rows;
+    const answers: Record<string, string> = {};
+    p6.forEach((r: string[]) => (answers[r[0]] = "A"));
+    delete answers["P6-0002"]; // 第一篇有一題沒作答
+    const r6 = gs.applyVerification(p6, answers);
+    expect(p6.map((r: unknown[]) => r[13])).toEqual([...Array(4).fill("草稿"), ...Array(4).fill("已審核")]);
+    expect(r6.approved).toBe(4);
+  });
+
+  it("自動審核後的列可以直接通過 App 的 CSV 匯入驗證（含維持草稿的題組）", () => {
+    const rows = gs.buildRows(6, "中階", { groups: [p6Group(), p6Group("Other [1] [2] [3] [4].")] }, [], "2026-10-10", 30).rows;
+    const answers: Record<string, string> = {};
+    rows.forEach((r: string[]) => (answers[r[0]] = "A"));
+    answers["P6-0003"] = "B";
+    gs.applyVerification(rows, answers);
+    const result = validateCsv(toCsv([gs.COLUMNS, ...rows.map((r: unknown[]) => r.map(String))]));
+    expect(result.errors).toEqual([]);
+    expect(result.counts.approved).toBe(4);
+    expect(result.counts.draft).toBe(4);
+  });
+
+  it("parseYesNo：留白視為否，其他值報錯", () => {
+    expect(gs.parseYesNo("", "自動審核")).toBe(false);
+    expect(gs.parseYesNo("否", "自動審核")).toBe(false);
+    expect(gs.parseYesNo(" 是 ", "自動審核")).toBe(true);
+    expect(() => gs.parseYesNo("yes", "自動審核")).toThrow(/自動審核/);
+  });
+
   it("pickGeminiModel：挑最新穩定版 Flash，排除 lite／preview／不支援 generateContent 的模型", () => {
     const m = (name: string, methods = ["generateContent"]) => ({ name: `models/${name}`, supportedGenerationMethods: methods });
     const list = [

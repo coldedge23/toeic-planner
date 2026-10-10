@@ -3,7 +3,8 @@
  *
  * 貼在「多益題庫」試算表的「擴充功能 → Apps Script」。
  * - 每天約 06:00 自動出題（時間觸發條件），也可從選單「AI 出題」手動出一批。
- * - 新題目一律寫成「草稿」，審核後改成「已審核」，App 才會匯入。
+ * - 新題目預設寫成「草稿」，審核後改成「已審核」，App 才會匯入。
+ * - 「設定」分頁的「自動審核」填「是」時，出題後請 AI 不看正解再作答一次，答案一致的題目直接寫成「已審核」。
  * - 金鑰只放在「專案設定 → 指令碼屬性」：GEMINI_API_KEY 或 CLAUDE_API_KEY。程式碼與試算表都不放金鑰。
  *
  * 檔案分兩段：前半是純函式（不呼叫 Google 服務，可在本機測試），後半是試算表與 API 呼叫。
@@ -231,6 +232,96 @@ function buildRows(part, difficulty, data, existing, today, limit) {
   return { rows: rows, skipped: skipped };
 }
 
+/** 答案複核時 AI 回傳的 JSON 形狀 */
+function verifySchema() {
+  return {
+    type: 'object',
+    additionalProperties: false,
+    required: ['answers'],
+    properties: {
+      answers: {
+        type: 'array',
+        items: {
+          type: 'object',
+          additionalProperties: false,
+          required: ['id', 'answer'],
+          properties: { id: { type: 'string' }, answer: { type: 'string', enum: ['A', 'B', 'C', 'D'] } }
+        }
+      }
+    }
+  };
+}
+
+/** 答案複核的提示詞：只給題目與選項，不給正解與解析，請 AI 獨立作答 */
+function buildVerifyPrompt(rows) {
+  var lines = [
+    '你是 TOEIC 閱讀測驗的考生。請作答以下每一題，每題只有一個正確答案。',
+    '只輸出 JSON，不要任何其他文字，格式：{"answers":[{"id":"題目編號","answer":"A"}]}，answer 只填 A、B、C 或 D。',
+    ''
+  ];
+  var lastGroup = null;
+  rows.forEach(function (r) {
+    if (r[3] && r[3] !== lastGroup) {
+      lines.push('=== Passage (' + r[3] + ') ===');
+      lines.push(String(r[4]));
+      lines.push('');
+    }
+    lastGroup = r[3] || null;
+    lines.push('[' + r[0] + '] ' + r[5]);
+    lines.push('(A) ' + r[6] + '  (B) ' + r[7] + '  (C) ' + r[8] + '  (D) ' + r[9]);
+    lines.push('');
+  });
+  return lines.join('\n');
+}
+
+/** 解析複核結果，回傳 { 題目編號: 'A'–'D' } */
+function parseVerifyJson(text) {
+  var s = String(text || '').trim();
+  var fence = /^```(?:json)?\s*([\s\S]*?)\s*```$/i.exec(s);
+  if (fence) s = fence[1];
+  var start = s.indexOf('{');
+  var end = s.lastIndexOf('}');
+  if (start === -1 || end === -1) throw new Error('複核回傳的內容不是 JSON');
+  var data = JSON.parse(s.slice(start, end + 1));
+  if (!data || !Array.isArray(data.answers)) throw new Error('複核回傳的 JSON 缺少 answers');
+  var map = {};
+  data.answers.forEach(function (a) {
+    if (a && a.id) map[String(a.id).trim()] = String(a.answer || '').trim().toUpperCase();
+  });
+  return map;
+}
+
+/**
+ * 依複核結果決定狀態：複核答案與正解一致的題目改成「已審核」，不一致或沒作答的維持「草稿」。
+ * Part 6／7 同一篇文章的題目只要有一題不一致，整篇維持草稿（文章只寫在第一列，狀態必須一致）。
+ * 直接修改 rows，回傳 { approved: 題數, mismatched: [說明] }。
+ */
+function applyVerification(rows, answers) {
+  var badGroups = {};
+  var mismatched = [];
+  rows.forEach(function (r) {
+    var got = answers[r[0]];
+    if (got !== r[10]) {
+      mismatched.push(r[0] + '（正解 ' + r[10] + '，複核 ' + (got || '未作答') + '）');
+      if (r[3]) badGroups[r[3]] = true;
+    }
+  });
+  var approved = 0;
+  rows.forEach(function (r) {
+    var ok = r[3] ? !badGroups[r[3]] : answers[r[0]] === r[10];
+    r[13] = ok ? '已審核' : '草稿';
+    if (ok) approved += 1;
+  });
+  return { approved: approved, mismatched: mismatched };
+}
+
+function parseYesNo(text, name) {
+  var s = String(text || '').trim();
+  if (s === '' || s === '否') return false;
+  if (s === '是') return true;
+  throw new Error('「' + name + '」須為 是 或 否');
+}
+
 /** 依日期決定今天出哪個 Part（台北日期，從 1970-01-01 起算的天數） */
 function rotationPart(rotation, dateStr) {
   var days = Math.floor(Date.parse(dateStr + 'T00:00:00Z') / 86400000);
@@ -308,7 +399,8 @@ function readSettings_() {
     manualMax: Math.max(1, Number(map['手動單次上限']) || 15),
     provider: provider,
     model: map['模型'] || DEFAULT_MODELS[provider],
-    targetRange: map['目標分數範圍'] || '600–800'
+    targetRange: map['目標分數範圍'] || '600–800',
+    autoApprove: parseYesNo(map['自動審核'], '自動審核')
   };
 }
 
@@ -364,7 +456,7 @@ function resolveGeminiModel_(configured) {
   return model;
 }
 
-function callGemini_(model, prompt) {
+function callGemini_(model, prompt, temperature) {
   var res = UrlFetchApp.fetch(
     'https://generativelanguage.googleapis.com/v1beta/models/' + encodeURIComponent(model) + ':generateContent',
     {
@@ -374,7 +466,7 @@ function callGemini_(model, prompt) {
       muteHttpExceptions: true,
       payload: JSON.stringify({
         contents: [{ role: 'user', parts: [{ text: prompt }] }],
-        generationConfig: { responseMimeType: 'application/json', temperature: 0.9 }
+        generationConfig: { responseMimeType: 'application/json', temperature: temperature === undefined ? 0.9 : temperature }
       })
     }
   );
@@ -390,7 +482,7 @@ function callGemini_(model, prompt) {
   return cand.content.parts.map(function (p) { return p.text || ''; }).join('');
 }
 
-function callClaude_(model, prompt) {
+function callClaude_(model, prompt, schema) {
   var res = UrlFetchApp.fetch('https://api.anthropic.com/v1/messages', {
     method: 'post',
     contentType: 'application/json',
@@ -400,7 +492,7 @@ function callClaude_(model, prompt) {
       model: model,
       max_tokens: 16000,
       messages: [{ role: 'user', content: prompt }],
-      output_config: { format: { type: 'json_schema', schema: responseSchema() } }
+      output_config: { format: { type: 'json_schema', schema: schema || responseSchema() } }
     })
   });
   var code = res.getResponseCode();
@@ -435,6 +527,8 @@ function generateAndAppend_(mode, part, difficulty, requested) {
     if (settings.provider === 'gemini') settings.model = resolveGeminiModel_(settings.model);
     var text = settings.provider === 'claude' ? callClaude_(settings.model, prompt) : callGemini_(settings.model, prompt);
     var result = buildRows(part, difficulty, parseModelJson(text), existing, today_(), remaining);
+    var review = { approved: 0, note: '' };
+    if (settings.autoApprove && result.rows.length) review = verifyRows_(settings, result.rows);
     if (result.rows.length) {
       var sheet = SpreadsheetApp.getActive().getSheetByName(SHEET_BANK);
       var start = sheet.getLastRow() + 1;
@@ -442,14 +536,38 @@ function generateAndAppend_(mode, part, difficulty, requested) {
       if (need > 0) sheet.insertRowsAfter(sheet.getMaxRows(), need + 100);
       sheet.getRange(start, 1, result.rows.length, COLUMNS.length).setValues(result.rows);
     }
-    var msg = settings.provider + '／' + settings.model + (result.skipped.length ? '｜略過：' + result.skipped.join('；') : '');
+    var drafts = result.rows.length - review.approved;
+    var msg = settings.provider + '／' + settings.model +
+      (settings.autoApprove ? '｜已審核 ' + review.approved + '、草稿 ' + drafts + (review.note ? '｜' + review.note : '') : '') +
+      (result.skipped.length ? '｜略過：' + result.skipped.join('；') : '');
     log_(mode, part, difficulty, plan.total, result.rows.length, plan.total - result.rows.length, '成功', msg);
-    return '寫入 ' + result.rows.length + ' 題草稿' + (result.skipped.length ? '，略過 ' + result.skipped.length + ' 組（原因見「執行紀錄」）' : '') + '。';
+    var written = settings.autoApprove
+      ? '寫入 ' + result.rows.length + ' 題（已審核 ' + review.approved + ' 題、草稿 ' + drafts + ' 題）'
+      : '寫入 ' + result.rows.length + ' 題草稿';
+    return written + (result.skipped.length ? '，略過 ' + result.skipped.length + ' 組' : '') +
+      (result.skipped.length || (settings.autoApprove && drafts) ? '（原因見「執行紀錄」）' : '') + '。';
   } catch (e) {
     log_(mode, part, difficulty, requested, 0, 0, '失敗', e.message);
     throw e;
   } finally {
     lock.releaseLock();
+  }
+}
+
+/**
+ * 自動審核：請 AI 不看正解再作答一次，答案一致的題目改成「已審核」。
+ * 複核失敗時不中斷出題，所有題目維持草稿，原因記在「執行紀錄」。
+ */
+function verifyRows_(settings, rows) {
+  try {
+    var prompt = buildVerifyPrompt(rows);
+    var text = settings.provider === 'claude'
+      ? callClaude_(settings.model, prompt, verifySchema())
+      : callGemini_(settings.model, prompt, 0);
+    var r = applyVerification(rows, parseVerifyJson(text));
+    return { approved: r.approved, note: r.mismatched.length ? '複核不一致：' + r.mismatched.join('；') : '' };
+  } catch (e) {
+    return { approved: 0, note: '複核失敗，全部維持草稿：' + e.message };
   }
 }
 
@@ -507,6 +625,7 @@ function checkSetup() {
     }
     lines.push('AI 服務：' + s.provider + '（模型 ' + model + '）');
     lines.push('每日：' + s.dailyCount + ' 題，難度 ' + s.difficulty + '，輪替 Part ' + s.rotation.join('、'));
+    lines.push('自動審核：' + (s.autoApprove ? '是（AI 複核答案一致的題目直接寫成已審核）' : '否（新題目寫成草稿）'));
     lines.push('今天出 Part ' + rotationPart(s.rotation, today_()) + '；今天已寫入 ' + writtenToday_() + '／上限 ' + s.dailyCap + ' 題');
     lines.push('金鑰：' + (PropertiesService.getScriptProperties().getProperty(s.provider === 'claude' ? 'CLAUDE_API_KEY' : 'GEMINI_API_KEY') ? '已設定' : '未設定'));
   } catch (e) {
@@ -527,7 +646,7 @@ var DIALOG_HTML = [
   '<label>題數</label><input name="count" type="number" min="1" value="10">',
   '<button type="submit" id="go">出題</button></form><div id="msg"></div>',
   '<script>document.getElementById("f").onsubmit=function(e){e.preventDefault();var b=document.getElementById("go");',
-  'var m=document.getElementById("msg");b.disabled=true;m.textContent="出題中，約需 10–60 秒…";',
+  'var m=document.getElementById("msg");b.disabled=true;m.textContent="出題中，約需 10–90 秒…";',
   'var f=e.target;google.script.run.withSuccessHandler(function(t){m.textContent=t;b.disabled=false;})',
   '.withFailureHandler(function(err){m.textContent="失敗："+err.message;b.disabled=false;})',
   '.generateFromDialog({part:f.part.value,difficulty:f.difficulty.value,count:f.count.value});};</script>'
