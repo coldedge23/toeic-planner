@@ -91,11 +91,21 @@ export function TodayPage() {
             {nextStudy && `下一個讀書日是 ${formatDateLabel(nextStudy[0])}。`}
           </p>
         ) : (
-          <ul className="task-list">
-            {todays.map((t) => (
-              <TaskItem key={t.id} task={t} />
-            ))}
-          </ul>
+          <>
+            <ul className="task-list">
+              {todays.map((t) => (
+                <TaskItem key={t.id} task={t} />
+              ))}
+            </ul>
+            {todays.some((t) => t.part === null) && (
+              <div className="actions">
+                <Link className="btn btn-primary" to="/mock">
+                  前往模擬考
+                </Link>
+                <span className="field-hint">考完後回來勾選完成。</span>
+              </div>
+            )}
+          </>
         )}
       </section>
 

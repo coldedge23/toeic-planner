@@ -197,7 +197,12 @@ export const SessionSchema = BaseRecordSchema.extend({
   question_snapshot: z.array(z.object({ question: QuestionSchema, group: ContentGroupSchema.nullable() })),
   seconds_per_question: z.number().int().positive().nullable(),
   started_at: isoDateTime,
+  /** 暫停時會往後延；null = 不限時 */
   deadline_at: isoDateTime.nullable(),
+  /** 目前暫停的開始時間；null = 進行中 */
+  paused_at: isoDateTime.nullable(),
+  /** 已結束的暫停累計毫秒，用來計算實際作答時間 */
+  paused_ms: z.number().int().nonnegative(),
   submitted_at: isoDateTime.nullable(),
   status: z.enum(["in_progress", "submitted"]),
   idempotency_key: z.string().min(1),

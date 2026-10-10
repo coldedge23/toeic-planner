@@ -47,7 +47,14 @@ export function AppShell() {
           <ul className="nav">
             {NAV_ITEMS.map((item, i) => (
               <li key={item.path}>
-                <NavLink to={item.path} className={({ isActive }) => (isActive ? "active" : undefined)}>
+                <NavLink
+                  to={item.path}
+                  className={({ isActive }) =>
+                    isActive || (item.path === "/mock" && location.pathname.startsWith("/sessions/"))
+                      ? "active"
+                      : undefined
+                  }
+                >
                   <span className="nav-index num">{i + 1}</span>
                   {item.label}
                 </NavLink>

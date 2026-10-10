@@ -4,7 +4,8 @@ import { ToeicDB } from "@/storage/dexie/db";
 import { createDexieRepositories } from "@/storage/dexie/DexieRepositories";
 import { defaultSettingsInput } from "@/domain/settings";
 import { BackupSchema } from "@/domain/schema";
-import { demoQuestions } from "@/fixtures/demo-bank";
+import { demoGroups, demoQuestions } from "@/fixtures/demo-bank";
+import { buildSession, selectQuestions } from "@/domain/exam-engine";
 import { buildPlanRecords, generatePlanTasks, previewReschedule } from "@/domain/planner";
 
 let db: ToeicDB;
@@ -157,6 +158,82 @@ describe("PlansRepository", () => {
     expect((await repos.plans.getActivePlan())?.id).toBe(first.plan.id);
     expect(await db.study_plans.count()).toBe(1);
     expect(await db.study_tasks.count()).toBe(first.tasks.length);
+  });
+});
+
+describe("SessionsRepository", () => {
+  const T0 = new Date("2026-10-10T02:00:00.000Z");
+  async function start() {
+    const r = selectQuestions(demoQuestions, demoGroups, { parts: [5, 6, 7], count: 10, secondsPerQuestion: 45 });
+    if (!r.ok) throw new Error();
+    const session = buildSession({ parts: [5, 6, 7], count: 10, secondsPerQuestion: 45 }, r.items, T0, () =>
+      crypto.randomUUID(),
+    );
+    await repos.sessions.create(session);
+    return session;
+  }
+
+  it("同時只能有一場進行中的測驗", async () => {
+    await start();
+    await expect(start()).rejects.toThrow();
+  });
+
+  it("作答草稿在重新開啟資料庫後仍在，可續答；改答案只保留一筆", async () => {
+    const s = await start();
+    const q = s.question_snapshot[0].question;
+    await repos.sessions.saveAnswer({ sessionId: s.id, questionId: q.id, selectedKey: "A", elapsedMs: 1000 });
+    await repos.sessions.saveAnswer({ sessionId: s.id, questionId: q.id, selectedKey: "C", elapsedMs: 2000 });
+    db.close();
+    const reopened = new ToeicDB(db.name);
+    const r2 = createDexieRepositories(reopened);
+    expect((await r2.sessions.getInProgress())?.id).toBe(s.id);
+    const answers = await r2.sessions.getAnswers(s.id);
+    expect(answers).toHaveLength(1);
+    expect(answers[0].selected_key).toBe("C");
+    reopened.close();
+    await db.open();
+  });
+
+  it("交卷寫入每題一筆 attempt；重送不重複寫入；交卷後不能改答案", async () => {
+    const s = await start();
+    const q = s.question_snapshot[0].question;
+    await repos.sessions.saveAnswer({ sessionId: s.id, questionId: q.id, selectedKey: q.correct_key, elapsedMs: 0 });
+    const first = await repos.sessions.submit(s.id, new Date(T0.getTime() + 60_000));
+    expect(first.alreadySubmitted).toBe(false);
+    expect(first.attempts).toHaveLength(10);
+    expect(first.attempts.filter((a) => a.is_correct)).toHaveLength(1);
+    expect(first.session.status).toBe("submitted");
+
+    const again = await repos.sessions.submit(s.id, new Date(T0.getTime() + 90_000));
+    expect(again.alreadySubmitted).toBe(true);
+    expect(again.session.submitted_at).toBe(first.session.submitted_at);
+    expect(await db.attempts.count()).toBe(10);
+
+    await expect(
+      repos.sessions.saveAnswer({ sessionId: s.id, questionId: q.id, selectedKey: "D", elapsedMs: 0 }),
+    ).rejects.toThrow();
+    expect(await repos.sessions.getInProgress()).toBeNull();
+  });
+
+  it("同時送出兩次交卷也只寫入一次", async () => {
+    const s = await start();
+    const [a, b] = await Promise.all([repos.sessions.submit(s.id, T0), repos.sessions.submit(s.id, T0)]);
+    expect([a.alreadySubmitted, b.alreadySubmitted].sort()).toEqual([false, true]);
+    expect(await db.attempts.count()).toBe(10);
+  });
+
+  it("超過截止時間才交卷，交卷時間記為截止時間", async () => {
+    const s = await start();
+    const r = await repos.sessions.submit(s.id, new Date(T0.getTime() + 3_600_000));
+    expect(r.session.submitted_at).toBe(s.deadline_at);
+  });
+
+  it("暫停中交卷，暫停時間不計入", async () => {
+    const s = await start();
+    await repos.sessions.pause(s.id, new Date(T0.getTime() + 60_000));
+    const r = await repos.sessions.submit(s.id, new Date(T0.getTime() + 600_000));
+    expect(r.session.paused_at).toBeNull();
+    expect(r.session.paused_ms).toBe(540_000);
   });
 });
 

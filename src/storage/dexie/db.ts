@@ -45,5 +45,9 @@ export class ToeicDB extends Dexie {
       import_batches: "id, checksum",
       generation_jobs: "id, &job_key, status",
     });
+    // v2：同一場測驗的同一題只能有一筆 attempt（交卷重送不重複寫入）
+    this.version(2).stores({
+      attempts: "id, session_id, question_id, &[session_id+question_id]",
+    });
   }
 }

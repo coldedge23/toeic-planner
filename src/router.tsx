@@ -6,6 +6,8 @@ import { TodayPage } from "./pages/TodayPage";
 import { MockPage } from "./pages/MockPage";
 import { MistakesPage } from "./pages/MistakesPage";
 import { BankPage } from "./pages/BankPage";
+import { SessionPage } from "./pages/SessionPage";
+import { ResultPage } from "./pages/ResultPage";
 
 export const router = createBrowserRouter(
   [
@@ -19,6 +21,8 @@ export const router = createBrowserRouter(
         { path: "mock", element: <MockPage /> },
         { path: "mistakes", element: <MistakesPage /> },
         { path: "bank", element: <BankPage /> },
+        { path: "sessions/:id", element: <SessionPage /> },
+        { path: "sessions/:id/result", element: <ResultPage /> },
         { path: "*", element: <Navigate to="/today" replace /> },
       ],
     },

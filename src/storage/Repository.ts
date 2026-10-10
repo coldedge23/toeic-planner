@@ -1,8 +1,12 @@
 import type {
+  Answer,
+  Attempt,
   Backup,
   ContentGroup,
   Part,
+  OptionKey,
   Question,
+  Session,
   Settings,
   SettingsInput,
   StudyPlan,
@@ -53,7 +57,28 @@ export interface BankRepository {
   getGroups(ids: readonly string[]): Promise<ContentGroup[]>;
 }
 
-export interface SessionsRepository {}
+export interface SubmitResult {
+  session: Session;
+  attempts: Attempt[];
+  /** true = 這次呼叫之前就已交卷（重送），沒有新增任何紀錄 */
+  alreadySubmitted: boolean;
+}
+
+export interface SessionsRepository {
+  create(session: Session): Promise<void>;
+  get(id: string): Promise<Session | null>;
+  /** 進行中的測驗（最多一場）。 */
+  getInProgress(): Promise<Session | null>;
+  listSubmitted(): Promise<Session[]>;
+  getAnswers(sessionId: string): Promise<Answer[]>;
+  listAttempts(sessionId: string): Promise<Attempt[]>;
+  /** 存作答草稿；已交卷的測驗會拒絕寫入。 */
+  saveAnswer(input: { sessionId: string; questionId: string; selectedKey: OptionKey | null; elapsedMs: number }): Promise<void>;
+  pause(sessionId: string, now: Date): Promise<void>;
+  resume(sessionId: string, now: Date): Promise<void>;
+  /** 交卷並寫入 attempts。冪等：重複呼叫不會重複寫入。 */
+  submit(sessionId: string, now: Date): Promise<SubmitResult>;
+}
 
 export interface MistakesRepository {
   countActive(): Promise<number>;
