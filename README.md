@@ -58,7 +58,7 @@ npm run preview:pages  # 以 /toeic-planner/ 為根路徑建置並預覽（模�
 | P4 | 錯題本（自動收錄、錯題重考、連續答對 2 次封存、清空可復原）、JSON 備份匯出／還原 | 完成 |
 | P5 | 題庫匯入（Sheet CSV 網址或本機檔、預覽、錯誤定位、只收已審核、版本更新與下架）、CSV 匯出與範本 | 完成 |
 | P6 | PWA（離線可用、可加入主畫面）、頁面按需載入、GitHub Pages 自動部署 | 完成 |
-| P7 | 題庫 Sheet、Apps Script 每日與手動出題（預設 Gemini 免費額度，可切換 Claude） | 程式完成，待安裝（見 `apps-script/README.md`） |
+| P7 | 題庫 Sheet、Apps Script 每日與手動出題（預設 Gemini 免費額度，可切換 Claude） | 完成（2026-10-10 已安裝並實測出題、匯入） |
 
 ## 限制
 
