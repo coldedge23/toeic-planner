@@ -1,5 +1,6 @@
 import { useEffect, useState, type FormEvent } from "react";
 import { PageHeader } from "@/components/ui";
+import { BackupCard } from "@/components/BackupCard";
 import { useSettings } from "@/hooks/useSettings";
 import { repos } from "@/storage";
 import { defaultSettingsInput, validateSettingsInput, type FieldErrors } from "@/domain/settings";
@@ -298,6 +299,16 @@ export function SettingsPage() {
           </span>
         </div>
       </form>
+
+      <BackupCard
+        onRestored={async () => {
+          // 還原後直接從資料庫重新讀取設定到表單（不卸載備份區塊，保留成功訊息）
+          const restored = await repos.settings.get();
+          setForm(toForm(restored ?? defaultSettingsInput()));
+          setErrors({});
+          setStatus({ kind: "idle" });
+        }}
+      />
     </>
   );
 }

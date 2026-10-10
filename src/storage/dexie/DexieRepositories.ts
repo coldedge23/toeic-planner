@@ -2,6 +2,7 @@ import {
   AnswerSchema,
   AttemptSchema,
   BackupSchema,
+  MistakeItemSchema,
   SessionSchema,
   SCHEMA_VERSION,
   SettingsInputSchema,
@@ -9,17 +10,27 @@ import {
   StudyPlanSchema,
   StudyTaskSchema,
   TIMEZONE,
+  type MistakeItem,
   type Part,
+  type Question,
   type Settings,
   type SettingsInput,
 } from "@/domain/schema";
 import { nowIso } from "@/domain/dates";
 import { gradeSession, pauseSession, resumeSession } from "@/domain/exam-engine";
+import { applyAttempts, clearItems, restoreItem } from "@/domain/mistake-policy";
 import { demoGroups, demoQuestions } from "@/fixtures/demo-bank";
-import type { BankStats, Repositories } from "../Repository";
+import type { BankStats, MistakeEntry, Repositories } from "../Repository";
 import type { ToeicDB } from "./db";
 
 export function createDexieRepositories(db: ToeicDB): Repositories {
+  const withQuestions = async (items: MistakeItem[]): Promise<MistakeEntry[]> => {
+    const questions = await db.questions.bulkGet(items.map((i) => i.question_id));
+    return items
+      .map((item, i) => ({ item, question: questions[i] ?? null }))
+      .sort((a, b) => b.item.updated_at.localeCompare(a.item.updated_at));
+  };
+
   return {
     settings: {
       async get() {
@@ -181,7 +192,7 @@ export function createDexieRepositories(db: ToeicDB): Repositories {
         });
       },
       async submit(sessionId, now) {
-        return db.transaction("rw", db.sessions, db.answers, db.attempts, async () => {
+        return db.transaction("rw", [db.sessions, db.answers, db.attempts, db.mistake_items], async () => {
           const session = await db.sessions.get(sessionId);
           if (!session) throw new Error("找不到這場測驗");
           if (session.status === "submitted") {
@@ -214,6 +225,16 @@ export function createDexieRepositories(db: ToeicDB): Repositories {
           );
           await db.sessions.put(submitted);
           await db.attempts.bulkAdd(attempts);
+          // 錯題本與交卷在同一交易：同一場交卷只會處理一次
+          const ids = attempts.map((a) => a.question_id);
+          const existing = await db.mistake_items.where("question_id").anyOf(ids).toArray();
+          const updates = applyAttempts(
+            new Map(existing.map((m) => [m.question_id, m])),
+            attempts,
+            iso,
+            () => crypto.randomUUID(),
+          );
+          await db.mistake_items.bulkPut(updates.map((m) => MistakeItemSchema.parse(m)));
           return { session: submitted, attempts, alreadySubmitted: false };
         });
       },
@@ -222,6 +243,44 @@ export function createDexieRepositories(db: ToeicDB): Repositories {
     mistakes: {
       async countActive() {
         return db.mistake_items.where("state").equals("active").count();
+      },
+      async listActive() {
+        return withQuestions(await db.mistake_items.where("state").equals("active").toArray());
+      },
+      async listArchived() {
+        return withQuestions(await db.mistake_items.where("state").equals("archived").toArray());
+      },
+      async activeQuestions() {
+        const items = await db.mistake_items.where("state").equals("active").toArray();
+        const questions = await db.questions.bulkGet(items.map((i) => i.question_id));
+        return questions.filter((q): q is Question => q !== undefined && q.status === "approved");
+      },
+      async clearAll(now) {
+        const iso = now.toISOString();
+        return db.transaction("rw", db.mistake_items, async () => {
+          const active = await db.mistake_items.where("state").equals("active").toArray();
+          if (active.length === 0) return null;
+          await db.mistake_items.bulkPut(clearItems(active, iso));
+          return iso;
+        });
+      },
+      async restoreCleared(clearedAt) {
+        const now = nowIso();
+        return db.transaction("rw", db.mistake_items, async () => {
+          const items = (await db.mistake_items.where("state").equals("archived").toArray()).filter(
+            (i) => i.archive_reason === "cleared" && i.archived_at === clearedAt,
+          );
+          await db.mistake_items.bulkPut(items.map((i) => restoreItem(i, now)));
+          return items.length;
+        });
+      },
+      async restore(itemId) {
+        await db.transaction("rw", db.mistake_items, async () => {
+          const item = await db.mistake_items.get(itemId);
+          if (!item) throw new Error("找不到這筆錯題");
+          if (item.state === "active") return;
+          await db.mistake_items.put(restoreItem(item, nowIso()));
+        });
       },
     },
 
@@ -243,6 +302,38 @@ export function createDexieRepositories(db: ToeicDB): Repositories {
           mistake_items: await db.mistake_items.toArray(),
           import_batches: await db.import_batches.toArray(),
           generation_jobs: await db.generation_jobs.toArray(),
+        });
+      },
+      async importAll(backup) {
+        const valid = BackupSchema.parse(backup);
+        const tables = [
+          db.settings,
+          db.study_plans,
+          db.study_tasks,
+          db.content_groups,
+          db.questions,
+          db.media_assets,
+          db.sessions,
+          db.answers,
+          db.attempts,
+          db.mistake_items,
+          db.import_batches,
+          db.generation_jobs,
+        ];
+        await db.transaction("rw", tables, async () => {
+          for (const t of tables) await t.clear();
+          await db.settings.bulkAdd(valid.settings);
+          await db.study_plans.bulkAdd(valid.study_plans);
+          await db.study_tasks.bulkAdd(valid.study_tasks);
+          await db.content_groups.bulkAdd(valid.content_groups);
+          await db.questions.bulkAdd(valid.questions);
+          await db.media_assets.bulkAdd(valid.media_assets);
+          await db.sessions.bulkAdd(valid.sessions);
+          await db.answers.bulkAdd(valid.answers);
+          await db.attempts.bulkAdd(valid.attempts);
+          await db.mistake_items.bulkAdd(valid.mistake_items);
+          await db.import_batches.bulkAdd(valid.import_batches);
+          await db.generation_jobs.bulkAdd(valid.generation_jobs);
         });
       },
     },

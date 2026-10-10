@@ -43,6 +43,7 @@ function readInitial(params: URLSearchParams) {
   const sec = params.get("sec");
   const secNum = sec === null ? 45 : sec === "none" ? null : Number(sec);
   return {
+    source: params.get("source") === "mistakes" ? ("mistakes" as const) : ("bank" as const),
     parts: parts.length ? parts : [...READING_PARTS],
     count: params.get("count") ?? "10",
     seconds: SECONDS_OPTIONS.some((o) => o.value === secNum) ? secNum : 45,
@@ -52,6 +53,7 @@ function readInitial(params: URLSearchParams) {
 function StartForm() {
   const [params] = useSearchParams();
   const initial = useMemo(() => readInitial(params), [params]);
+  const [source, setSource] = useState<"bank" | "mistakes">(initial.source);
   const [parts, setParts] = useState<ReadingPart[]>(initial.parts);
   const [count, setCount] = useState(initial.count);
   const [seconds, setSeconds] = useState<number | null>(initial.seconds);
@@ -60,12 +62,12 @@ function StartForm() {
   const navigate = useNavigate();
 
   const bank = useLiveQuery(async () => {
-    const questions = await repos.bank.listApproved();
+    const questions = source === "mistakes" ? await repos.mistakes.activeQuestions() : await repos.bank.listApproved();
     return { questions, groups: await repos.bank.getGroups([...new Set(questions.flatMap((q) => q.group_id ?? []))]) };
-  }, []);
+  }, [source]);
 
   const perPart = (p: ReadingPart) => bank?.questions.filter((q) => q.part === p).length ?? 0;
-  const availability = bank ? checkAvailability(bank.questions, parts) : null;
+  const availability = bank ? checkAvailability(bank.questions, parts, source === "bank") : null;
 
   const togglePart = (p: ReadingPart) => {
     setError(null);
@@ -75,7 +77,7 @@ function StartForm() {
   const onSubmit = async (e: FormEvent) => {
     e.preventDefault();
     if (!bank) return;
-    const config = { parts, count: Number(count), secondsPerQuestion: seconds };
+    const config = { source, parts, count: Number(count), secondsPerQuestion: seconds };
     const result = selectQuestions(bank.questions, bank.groups, config);
     if (!result.ok) {
       setError(describeSelectError(result));
@@ -112,7 +114,7 @@ function StartForm() {
               ))}
             </div>
             <span className="field-hint">
-              括號內為已審核題數。{parts.length > 0 && `已選：${parts.map((p) => PART_LABELS[p]).join("、")}`}
+              括號內為{source === "mistakes" ? "錯題本中的" : "已審核"}題數。{parts.length > 0 && `已選：${parts.map((p) => PART_LABELS[p]).join("、")}`}
             </span>
           </fieldset>
 
@@ -153,12 +155,28 @@ function StartForm() {
           <fieldset className="field fieldset">
             <legend className="field-label">來源與模式</legend>
             <label className="inline-check">
-              <input type="radio" name="source" defaultChecked />
+              <input
+                type="radio"
+                name="source"
+                checked={source === "bank"}
+                onChange={() => {
+                  setSource("bank");
+                  setError(null);
+                }}
+              />
               題庫（只抽已審核題目）
             </label>
-            <label className="inline-check is-disabled">
-              <input type="radio" name="source" disabled />
-              錯題本（P4 開放）
+            <label className="inline-check">
+              <input
+                type="radio"
+                name="source"
+                checked={source === "mistakes"}
+                onChange={() => {
+                  setSource("mistakes");
+                  setError(null);
+                }}
+              />
+              錯題本（只出答錯的題目）
             </label>
             <span className="field-hint">目前為練習模式；整卷正式時限模式之後開放。</span>
           </fieldset>
@@ -230,7 +248,9 @@ function History() {
             {[...history].reverse().map((h) => (
               <tr key={h.session.id}>
                 <td className="num nowrap">{dateTime.format(new Date(h.session.submitted_at!))}</td>
-                <td className="num nowrap">{h.session.parts.join("・")}</td>
+                <td className="num nowrap">
+                  {h.session.source === "mistakes" && <span className="tag">錯題</span>} {h.session.parts.join("・")}
+                </td>
                 <td className="num">
                   {h.correct}/{h.total}
                 </td>

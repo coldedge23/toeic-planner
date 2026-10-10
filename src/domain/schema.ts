@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 /** 備份與資料遷移使用的 schema 版本；結構有破壞性變更時遞增，並在 backup-migrations 補遷移。 */
-export const SCHEMA_VERSION = 1;
+export const SCHEMA_VERSION = 2;
 
 export const TIMEZONE = "Asia/Taipei" as const;
 

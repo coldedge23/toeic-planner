@@ -1020,3 +1020,77 @@ label.option:hover {
 .review-passage[open] summary {
   margin-bottom: 10px;
 }
+
+/* ---------- P4：錯題本 ---------- */
+.mistake-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.mistake {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 10px 0;
+  border-top: 1px solid var(--c-border);
+}
+.mistake:first-child {
+  border-top: 0;
+}
+.mistake details {
+  flex: 1;
+  min-width: 0;
+}
+.mistake summary {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 4px 16px;
+  cursor: pointer;
+  list-style: none;
+}
+.mistake summary::-webkit-details-marker {
+  display: none;
+}
+.mistake summary::before {
+  content: "+";
+  flex: none;
+  width: 14px;
+  color: var(--c-muted);
+  font-family: var(--font-en);
+}
+.mistake details[open] summary::before {
+  content: "−";
+}
+.mistake-main {
+  flex: 1 1 240px;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+.mistake-part {
+  font-size: 12px;
+  color: var(--c-muted);
+}
+.mistake-stem {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.mistake details[open] .mistake-stem {
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+.mistake-meta {
+  font-size: 13px;
+  color: var(--c-muted);
+  align-self: center;
+}
+.mistake-detail {
+  margin: 12px 0 4px 14px;
+}
+.inline-btn {
+  min-height: 0;
+  margin: 0 0 0 8px;
+  vertical-align: baseline;
+}

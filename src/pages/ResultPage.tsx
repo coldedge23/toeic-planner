@@ -99,6 +99,7 @@ export function ResultPage() {
 
   const result = gradeSession(session, answers);
   const retryQuery = new URLSearchParams({
+    source: session.source,
     parts: session.parts.join(","),
     count: String(result.total),
     sec: session.seconds_per_question === null ? "none" : String(session.seconds_per_question),

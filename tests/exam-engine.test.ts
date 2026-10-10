@@ -34,7 +34,7 @@ const NOW = new Date("2026-10-10T02:00:00.000Z");
 describe("selectQuestions", () => {
   it("抽出剛好指定題數且不重複", () => {
     for (let seed = 1; seed <= 20; seed++) {
-      const r = selectQuestions(demoQuestions, demoGroups, { parts: [5, 6, 7], count: 10, secondsPerQuestion: 45 }, seeded(seed));
+      const r = selectQuestions(demoQuestions, demoGroups, { source: "bank", parts: [5, 6, 7], count: 10, secondsPerQuestion: 45 }, seeded(seed));
       if (!r.ok) throw new Error(JSON.stringify(r));
       expect(r.items).toHaveLength(10);
       expect(new Set(r.items.map((i) => i.question.id)).size).toBe(10);
@@ -43,7 +43,7 @@ describe("selectQuestions", () => {
 
   it("共用題組保持完整：抽到題組中的一題就抽到整組，且附上文章", () => {
     for (let seed = 1; seed <= 20; seed++) {
-      const r = selectQuestions(demoQuestions, demoGroups, { parts: [5, 6, 7], count: 9, secondsPerQuestion: null }, seeded(seed));
+      const r = selectQuestions(demoQuestions, demoGroups, { source: "bank", parts: [5, 6, 7], count: 9, secondsPerQuestion: null }, seeded(seed));
       if (!r.ok) throw new Error();
       for (const g of demoGroups) {
         const inGroup = demoQuestions.filter((q) => q.group_id === g.id).length;
@@ -55,42 +55,42 @@ describe("selectQuestions", () => {
   });
 
   it("題目依 Part 排序，同題組的題目相鄰", () => {
-    const r = selectQuestions(demoQuestions, demoGroups, { parts: [5, 6, 7], count: 13, secondsPerQuestion: null }, seeded(3));
+    const r = selectQuestions(demoQuestions, demoGroups, { source: "bank", parts: [5, 6, 7], count: 13, secondsPerQuestion: null }, seeded(3));
     if (!r.ok) throw new Error();
     const parts = r.items.map((i) => i.question.part);
     expect(parts).toEqual([...parts].sort());
   });
 
   it("題庫不足時回傳實際可用數，不重複湊題", () => {
-    const r = selectQuestions(demoQuestions, demoGroups, { parts: [5], count: 8, secondsPerQuestion: 45 });
+    const r = selectQuestions(demoQuestions, demoGroups, { source: "bank", parts: [5], count: 8, secondsPerQuestion: 45 });
     expect(r).toEqual({ ok: false, error: "insufficient", available: 6 });
     if (!r.ok) expect(describeSelectError(r)).toContain("只有 6 題");
   });
 
   it("只選 Part 7 時，題數無法剛好組成會提示可行題數", () => {
-    const r = selectQuestions(demoQuestions, demoGroups, { parts: [6, 7], count: 5, secondsPerQuestion: 45 });
+    const r = selectQuestions(demoQuestions, demoGroups, { source: "bank", parts: [6, 7], count: 5, secondsPerQuestion: 45 });
     expect(r).toEqual({ ok: false, error: "group_mismatch", lower: 4, higher: 7 });
   });
 
   it("草稿或退回的題目不會被抽到", () => {
     const withDraft = demoQuestions.map((q) => (q.part === 5 ? { ...q, status: "draft" as const } : q));
     expect(checkAvailability(withDraft, [5]).available).toBe(0);
-    const r = selectQuestions(withDraft, demoGroups, { parts: [5, 6, 7], count: 7, secondsPerQuestion: 45 });
+    const r = selectQuestions(withDraft, demoGroups, { source: "bank", parts: [5, 6, 7], count: 7, secondsPerQuestion: 45 });
     if (!r.ok) throw new Error();
     expect(r.items.every((i) => i.question.part !== 5)).toBe(true);
   });
 
   it("沒選 Part、題數不合法", () => {
-    expect(selectQuestions(demoQuestions, demoGroups, { parts: [], count: 5, secondsPerQuestion: 45 }).ok).toBe(false);
-    expect(selectQuestions(demoQuestions, demoGroups, { parts: [5], count: 0, secondsPerQuestion: 45 }).ok).toBe(false);
-    expect(selectQuestions(demoQuestions, demoGroups, { parts: [5], count: 2.5, secondsPerQuestion: 45 }).ok).toBe(false);
+    expect(selectQuestions(demoQuestions, demoGroups, { source: "bank", parts: [], count: 5, secondsPerQuestion: 45 }).ok).toBe(false);
+    expect(selectQuestions(demoQuestions, demoGroups, { source: "bank", parts: [5], count: 0, secondsPerQuestion: 45 }).ok).toBe(false);
+    expect(selectQuestions(demoQuestions, demoGroups, { source: "bank", parts: [5], count: 2.5, secondsPerQuestion: 45 }).ok).toBe(false);
   });
 });
 
 function makeSession(count = 10, seconds: number | null = 45): Session {
-  const r = selectQuestions(demoQuestions, demoGroups, { parts: [5, 6, 7], count, secondsPerQuestion: seconds }, seeded(7));
+  const r = selectQuestions(demoQuestions, demoGroups, { source: "bank", parts: [5, 6, 7], count, secondsPerQuestion: seconds }, seeded(7));
   if (!r.ok) throw new Error();
-  return buildSession({ parts: [5, 6, 7], count, secondsPerQuestion: seconds }, r.items, NOW, newId);
+  return buildSession({ source: "bank", parts: [5, 6, 7], count, secondsPerQuestion: seconds }, r.items, NOW, newId);
 }
 
 describe("計時", () => {

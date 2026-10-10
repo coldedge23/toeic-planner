@@ -9,6 +9,8 @@ import type {
 } from "./schema";
 
 export interface SessionConfig {
+  /** bank = 題庫（題組整組抽）；mistakes = 錯題本（只出答錯的題目，同題組相鄰並附文章） */
+  source: "bank" | "mistakes";
   parts: ReadingPart[];
   count: number;
   /** null = 不限時 */
@@ -24,11 +26,11 @@ interface Unit {
   questions: Question[];
 }
 
-function buildUnits(questions: readonly Question[], parts: readonly Part[]): Unit[] {
+function buildUnits(questions: readonly Question[], parts: readonly Part[], wholeGroups = true): Unit[] {
   const units = new Map<string, Unit>();
   for (const q of questions) {
     if (q.status !== "approved" || !parts.includes(q.part)) continue;
-    const key = q.group_id ?? `q:${q.id}`;
+    const key = wholeGroups && q.group_id ? q.group_id : `q:${q.id}`;
     const unit = units.get(key) ?? { key, part: q.part, questions: [] };
     unit.questions.push(q);
     units.set(key, unit);
@@ -54,8 +56,12 @@ export interface Availability {
   achievable: Set<number>;
 }
 
-export function checkAvailability(questions: readonly Question[], parts: readonly Part[]): Availability {
-  const units = buildUnits(questions, parts);
+export function checkAvailability(
+  questions: readonly Question[],
+  parts: readonly Part[],
+  wholeGroups = true,
+): Availability {
+  const units = buildUnits(questions, parts, wholeGroups);
   return {
     available: units.reduce((s, u) => s + u.questions.length, 0),
     achievable: achievableCounts(units),
@@ -110,7 +116,7 @@ export function selectQuestions(
   if (config.parts.length === 0) return { ok: false, error: "no_parts" };
   if (!Number.isInteger(config.count) || config.count <= 0) return { ok: false, error: "invalid_count" };
 
-  const units = shuffle(buildUnits(questions, config.parts), rng);
+  const units = shuffle(buildUnits(questions, config.parts, config.source === "bank"), rng);
   const available = units.reduce((s, u) => s + u.questions.length, 0);
   if (config.count > available) return { ok: false, error: "insufficient", available };
 
@@ -139,8 +145,16 @@ export function selectQuestions(
     s -= unit.questions.length;
   }
 
-  // 依 Part 排序（同 TOEIC 順序），同 Part 內維持隨機順序
-  picked.sort((a, b) => a.part - b.part);
+  // 依 Part 排序（同 TOEIC 順序），同 Part 內維持隨機順序；錯題模式下同題組的題目排在一起
+  const groupOrder = new Map<string, number>();
+  picked.forEach((u, i) => {
+    const g = u.questions[0].group_id;
+    if (g && !groupOrder.has(g)) groupOrder.set(g, i);
+  });
+  const rank = (u: Unit) => groupOrder.get(u.questions[0].group_id ?? "") ?? picked.indexOf(u);
+  picked.sort(
+    (a, b) => a.part - b.part || rank(a) - rank(b) || a.questions[0].source_id.localeCompare(b.questions[0].source_id),
+  );
   const groupById = new Map(groups.map((g) => [g.id, g]));
   const items: SnapshotItem[] = picked.flatMap((u) =>
     u.questions.map((question) => ({
@@ -168,7 +182,7 @@ export function buildSession(
     created_at: iso,
     updated_at: iso,
     mode: "practice",
-    source: "bank",
+    source: config.source,
     parts: [...config.parts].sort((a, b) => a - b),
     question_snapshot: items,
     seconds_per_question: config.secondsPerQuestion,

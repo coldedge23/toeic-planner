@@ -3,6 +3,7 @@ import type {
   Attempt,
   Backup,
   ContentGroup,
+  MistakeItem,
   Part,
   OptionKey,
   Question,
@@ -80,12 +81,29 @@ export interface SessionsRepository {
   submit(sessionId: string, now: Date): Promise<SubmitResult>;
 }
 
+export interface MistakeEntry {
+  item: MistakeItem;
+  /** 題庫中目前的題目；題目已被刪除時為 null */
+  question: Question | null;
+}
+
 export interface MistakesRepository {
   countActive(): Promise<number>;
+  listActive(): Promise<MistakeEntry[]>;
+  listArchived(): Promise<MistakeEntry[]>;
+  /** 進行中錯題對應的題目（只含已審核者，供錯題本出題）。 */
+  activeQuestions(): Promise<Question[]>;
+  /** 清空：全部改為封存，回傳本次清空的時間戳（用於復原）。沒有錯題時回傳 null。 */
+  clearAll(now: Date): Promise<string | null>;
+  /** 復原某次清空的所有錯題，回傳復原筆數。 */
+  restoreCleared(clearedAt: string): Promise<number>;
+  restore(itemId: string): Promise<void>;
 }
 
 export interface BackupsRepository {
   exportAll(): Promise<Backup>;
+  /** 以備份取代目前全部資料；在單一交易中完成，失敗時原資料不變。 */
+  importAll(backup: Backup): Promise<void>;
 }
 
 export interface Repositories {

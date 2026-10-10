@@ -164,9 +164,9 @@ describe("PlansRepository", () => {
 describe("SessionsRepository", () => {
   const T0 = new Date("2026-10-10T02:00:00.000Z");
   async function start() {
-    const r = selectQuestions(demoQuestions, demoGroups, { parts: [5, 6, 7], count: 10, secondsPerQuestion: 45 });
+    const r = selectQuestions(demoQuestions, demoGroups, { source: "bank", parts: [5, 6, 7], count: 10, secondsPerQuestion: 45 });
     if (!r.ok) throw new Error();
-    const session = buildSession({ parts: [5, 6, 7], count: 10, secondsPerQuestion: 45 }, r.items, T0, () =>
+    const session = buildSession({ source: "bank", parts: [5, 6, 7], count: 10, secondsPerQuestion: 45 }, r.items, T0, () =>
       crypto.randomUUID(),
     );
     await repos.sessions.create(session);
