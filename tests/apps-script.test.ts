@@ -115,6 +115,31 @@ describe("Code.gs 純函式", () => {
     expect(result.counts.approved).toBe(1 + 4 + 3);
   });
 
+  it("pickGeminiModel：挑最新穩定版 Flash，排除 lite／preview／不支援 generateContent 的模型", () => {
+    const m = (name: string, methods = ["generateContent"]) => ({ name: `models/${name}`, supportedGenerationMethods: methods });
+    const list = [
+      m("gemini-2.5-flash"),
+      m("gemini-3.8-flash"),
+      m("gemini-3.8-flash-lite"),
+      m("gemini-4.0-flash-preview-0901"),
+      m("gemini-3.10-flash", ["embedContent"]),
+      m("gemini-3.8-pro"),
+      m("text-embedding-004", ["embedContent"]),
+    ];
+    expect(gs.pickGeminiModel(list)).toBe("gemini-3.8-flash");
+    // 沒有穩定版時退而選最新預覽版
+    expect(gs.pickGeminiModel([m("gemini-4.0-flash-preview-0901"), m("gemini-3.8-flash-lite")])).toBe(
+      "gemini-4.0-flash-preview-0901",
+    );
+    expect(gs.pickGeminiModel([m("gemini-3.8-pro")])).toBe("");
+    expect(gs.pickGeminiModel(undefined)).toBe("");
+  });
+
+  it("apiErrorMessage 只取出錯誤說明，不顯示整段 JSON", () => {
+    expect(gs.apiErrorMessage('{"error":{"code":404,"message":"model not found"}}')).toBe("model not found");
+    expect(gs.apiErrorMessage("plain text")).toBe("plain text");
+  });
+
   it("Claude structured outputs 的 schema 每層都禁止多餘欄位", () => {
     const s = gs.responseSchema();
     expect(s.additionalProperties).toBe(false);

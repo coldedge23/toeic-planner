@@ -24,7 +24,8 @@ var PART_INFO = {
   7: { label: 'Part 7 閱讀理解', perGroup: 3 }
 };
 var DIFFICULTIES = ['基礎', '中階', '進階'];
-var DEFAULT_MODELS = { gemini: 'gemini-2.5-flash', claude: 'claude-haiku-5-5' };
+/** 模型留白時：gemini 自動挑選可用的最新穩定版 Flash 模型；claude 使用 claude-haiku-5-5 */
+var DEFAULT_MODELS = { gemini: '', claude: 'claude-haiku-5-5' };
 
 // ======================== 純函式 ========================
 
@@ -236,6 +237,38 @@ function rotationPart(rotation, dateStr) {
   return rotation[days % rotation.length];
 }
 
+/**
+ * 從 Gemini ListModels 的結果挑出最新的穩定版 Flash 模型（排除 lite、preview、exp、image、tts、live 等變體）。
+ * 找不到穩定版時退而選最新的 Flash 預覽版；都沒有就回傳空字串。
+ */
+function pickGeminiModel(models) {
+  var usable = (models || []).filter(function (m) {
+    return (m.supportedGenerationMethods || []).indexOf('generateContent') !== -1;
+  }).map(function (m) { return String(m.name || '').replace(/^models\//, ''); });
+  var version = function (name) {
+    var m = /^gemini-(\d+(?:\.\d+)?)-flash/.exec(name);
+    return m ? Number(m[1]) : -1;
+  };
+  var byVersion = function (a, b) { return version(b) - version(a) || a.length - b.length; };
+  var stable = usable.filter(function (n) { return /^gemini-\d+(?:\.\d+)?-flash$/.test(n); }).sort(byVersion);
+  if (stable.length) return stable[0];
+  var preview = usable.filter(function (n) {
+    return version(n) >= 0 && !/(lite|image|tts|live|audio|embedding)/.test(n);
+  }).sort(byVersion);
+  return preview.length ? preview[0] : '';
+}
+
+/** 取出 API 錯誤 JSON 裡的 message，避免把整段原始回應顯示給使用者 */
+function apiErrorMessage(body) {
+  try {
+    var data = JSON.parse(body);
+    if (data && data.error && data.error.message) return String(data.error.message);
+  } catch (e) {
+    // 不是 JSON，直接用原文
+  }
+  return String(body || '').slice(0, 200);
+}
+
 function parseRotation(text) {
   var parts = String(text || '').split(/[,，\s]+/).map(Number).filter(function (p) { return PART_INFO[p]; });
   return parts.length ? parts : [5, 6, 7];
@@ -312,6 +345,25 @@ function apiKey_(provider) {
   return key;
 }
 
+/** 模型留白時向 Gemini 查詢這把金鑰可用的模型並自動挑選；結果快取 6 小時 */
+function resolveGeminiModel_(configured) {
+  if (configured) return configured;
+  var cache = CacheService.getScriptCache();
+  var cached = cache.get('gemini_model');
+  if (cached) return cached;
+  var res = UrlFetchApp.fetch('https://generativelanguage.googleapis.com/v1beta/models?pageSize=1000', {
+    headers: { 'x-goog-api-key': apiKey_('gemini') },
+    muteHttpExceptions: true
+  });
+  if (res.getResponseCode() !== 200) {
+    throw new Error('無法查詢 Gemini 可用模型（' + res.getResponseCode() + '）：' + apiErrorMessage(res.getContentText()));
+  }
+  var model = pickGeminiModel(JSON.parse(res.getContentText()).models);
+  if (!model) throw new Error('這把金鑰沒有可用的 Gemini Flash 模型，請在「設定」分頁的「模型」手動填入');
+  cache.put('gemini_model', model, 21600);
+  return model;
+}
+
 function callGemini_(model, prompt) {
   var res = UrlFetchApp.fetch(
     'https://generativelanguage.googleapis.com/v1beta/models/' + encodeURIComponent(model) + ':generateContent',
@@ -328,7 +380,10 @@ function callGemini_(model, prompt) {
   );
   var code = res.getResponseCode();
   var body = res.getContentText();
-  if (code !== 200) throw new Error('Gemini API 錯誤 ' + code + '：' + body.slice(0, 300));
+  if (code !== 200) {
+    CacheService.getScriptCache().remove('gemini_model'); // 模型可能已下架，下次重新挑選
+    throw new Error('Gemini API 錯誤 ' + code + '：' + apiErrorMessage(body));
+  }
   var data = JSON.parse(body);
   var cand = data.candidates && data.candidates[0];
   if (!cand || !cand.content) throw new Error('Gemini 沒有回傳內容（' + (cand && cand.finishReason) + '）');
@@ -350,7 +405,7 @@ function callClaude_(model, prompt) {
   });
   var code = res.getResponseCode();
   var body = res.getContentText();
-  if (code !== 200) throw new Error('Claude API 錯誤 ' + code + '：' + body.slice(0, 300));
+  if (code !== 200) throw new Error('Claude API 錯誤 ' + code + '：' + apiErrorMessage(body));
   var data = JSON.parse(body);
   if (data.stop_reason === 'refusal') throw new Error('Claude 拒絕這次請求');
   if (data.stop_reason === 'max_tokens') throw new Error('回傳內容太長被截斷，請減少題數');
@@ -377,6 +432,7 @@ function generateAndAppend_(mode, part, difficulty, requested) {
       .filter(Boolean)
       .slice(-40);
     var prompt = buildPrompt(part, difficulty, plan, settings.targetRange, avoid);
+    if (settings.provider === 'gemini') settings.model = resolveGeminiModel_(settings.model);
     var text = settings.provider === 'claude' ? callClaude_(settings.model, prompt) : callGemini_(settings.model, prompt);
     var result = buildRows(part, difficulty, parseModelJson(text), existing, today_(), remaining);
     if (result.rows.length) {
@@ -445,7 +501,11 @@ function checkSetup() {
   var lines = [];
   try {
     var s = readSettings_();
-    lines.push('AI 服務：' + s.provider + '（模型 ' + s.model + '）');
+    var model = s.model;
+    if (s.provider === 'gemini') {
+      try { model = resolveGeminiModel_(s.model) + (s.model ? '' : '（自動選擇）'); } catch (e) { model = '無法取得：' + e.message; }
+    }
+    lines.push('AI 服務：' + s.provider + '（模型 ' + model + '）');
     lines.push('每日：' + s.dailyCount + ' 題，難度 ' + s.difficulty + '，輪替 Part ' + s.rotation.join('、'));
     lines.push('今天出 Part ' + rotationPart(s.rotation, today_()) + '；今天已寫入 ' + writtenToday_() + '／上限 ' + s.dailyCap + ' 題');
     lines.push('金鑰：' + (PropertiesService.getScriptProperties().getProperty(s.provider === 'claude' ? 'CLAUDE_API_KEY' : 'GEMINI_API_KEY') ? '已設定' : '未設定'));
