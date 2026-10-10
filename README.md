@@ -1,0 +1,47 @@
+# 多益備考 TOEIC PLANNER
+
+個人用的 TOEIC 備考網頁 App：繁體中文介面、英文題目。目前範圍是閱讀 Part 5–7。
+
+架構與決策紀錄：[docs/20261010_TOEIC備考App架構計畫_v2.md](docs/20261010_TOEIC備考App架構計畫_v2.md)
+
+## 架構摘要
+
+- 純前端：Vite＋React＋TypeScript，靜態部署，電腦與手機共用同一個網址。
+- 資料存在瀏覽器的 IndexedDB（Dexie）。電腦與手機的紀錄**不會自動同步**，需要用 JSON 備份手動搬移。
+- 題庫來源：Google 試算表發佈成 CSV，App 只匯入狀態為「已審核」的題目。
+- AI 出題由 Google Apps Script 執行（每天 06:00 自動出題，或從 Sheet 選單手動出題）；App 內不存放任何 API 金鑰。
+
+## 開發
+
+```bash
+npm install
+npm run dev        # http://localhost:5173
+npm test           # 單元測試（Vitest + fake-indexeddb）
+npm run typecheck
+npm run build      # 輸出到 dist/
+```
+
+## 目錄
+
+| 路徑 | 內容 |
+|---|---|
+| `src/domain/` | 純函式與 Zod schema，不依賴畫面或儲存層 |
+| `src/storage/Repository.ts` | 儲存層介面；畫面只透過這些介面讀寫 |
+| `src/storage/dexie/` | IndexedDB 實作 |
+| `src/fixtures/demo-bank.ts` | 內建 demo 題庫（原創練習題，非官方試題） |
+| `src/pages/` | 六個頁面：設定／計畫／今日／模擬考／錯題本／題庫 |
+| `tests/` | 單元測試 |
+
+## 進度
+
+| 階段 | 內容 | 狀態 |
+|---|---|---|
+| P0 | schema、demo 題庫、Repository、測試 | 完成 |
+| P1 | 六頁骨架、響應式、設定頁 | 進行中 |
+| P2–P7 | 計畫／今日、模擬考、錯題本與備份、題庫匯入、部署與 PWA、Apps Script | 未開始 |
+
+## 限制
+
+- 清除瀏覽器網站資料會讓學習紀錄消失，請定期匯出 JSON 備份（P4 提供）。
+- 正確率不會換算成多益官方分數。
+- demo 題庫是原創練習題，不是 ETS 官方試題。
