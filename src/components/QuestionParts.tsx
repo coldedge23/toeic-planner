@@ -6,10 +6,23 @@ export function Passage({ group }: { group: ContentGroup }) {
       {group.passages.map((p, i) => (
         <article key={i} className="passage" lang="en">
           {p.title && <h3 className="passage-title">{p.title}</h3>}
-          <div className="passage-body">{p.body}</div>
+          <div className="passage-body">{markBlanks(p.body)}</div>
         </article>
       ))}
     </div>
+  );
+}
+
+/** 把文章裡的空格 [1]、[2]… 標成方框，方便和題目對照（文字仍保留 [n]，螢幕報讀照常唸出） */
+function markBlanks(body: string) {
+  return body.split(/(\[\d{1,2}\])/).map((part, i) =>
+    /^\[\d{1,2}\]$/.test(part) ? (
+      <span key={i} className="blank num">
+        {part}
+      </span>
+    ) : (
+      part
+    ),
   );
 }
 

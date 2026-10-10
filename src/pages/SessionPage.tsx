@@ -24,6 +24,7 @@ export function SessionPage() {
   const [now, setNow] = useState(() => new Date());
   const [pageIndex, setPageIndex] = useState<number | null>(null);
   const [confirming, setConfirming] = useState(false);
+  const [showPassage, setShowPassage] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const submitting = useRef(false);
   const contentRef = useRef<HTMLDivElement>(null);
@@ -94,6 +95,7 @@ export function SessionPage() {
   const goTo = (i: number) => {
     setPageIndex(i);
     setConfirming(false);
+    setShowPassage(false);
     contentRef.current?.scrollIntoView({ block: "start" });
   };
 
@@ -140,6 +142,34 @@ export function SessionPage() {
     }
   };
 
+  const questions = page.map((i, posInGroup) => {
+    const { question } = session.question_snapshot[i];
+    const current = selected.get(question.id) ?? null;
+    return (
+      <fieldset key={question.id} className="question">
+        <legend className="question-stem">
+          <span className="q-no num">{i + 1}.</span>
+          {questionHeading(question, posInGroup)}
+        </legend>
+        <div className="options">
+          {question.options.map((o) => (
+            <label key={o.key} className={`option${current === o.key ? " chosen" : ""}`}>
+              <input
+                type="radio"
+                name={`q-${question.id}`}
+                checked={current === o.key}
+                onChange={() => void choose(question.id, o.key)}
+              />
+              <span className="option-key">{o.key}</span>
+              <span className="option-text">{o.text}</span>
+            </label>
+          ))}
+        </div>
+      </fieldset>
+    );
+  });
+  const lastPage = pageIndex === pages.length - 1;
+
   return (
     <div className="session">
       <div className="session-bar" role="region" aria-label="作答狀態">
@@ -158,7 +188,7 @@ export function SessionPage() {
         <button type="button" className="btn btn-small" onClick={togglePause}>
           {paused ? "繼續" : "暫停"}
         </button>
-        <button type="button" className="btn btn-small btn-primary" onClick={() => setConfirming(true)}>
+        <button type="button" className="btn btn-small btn-primary bar-submit" onClick={() => setConfirming(true)}>
           交卷
         </button>
       </div>
@@ -211,6 +241,18 @@ export function SessionPage() {
         </div>
       </Modal>
 
+      {firstItem.group && (
+        <Modal open={showPassage} onClose={() => setShowPassage(false)} labelledBy="sheet-title" variant="sheet">
+          <div className="sheet-head">
+            <h2 id="sheet-title">文章</h2>
+            <button type="button" className="btn btn-small" data-autofocus onClick={() => setShowPassage(false)}>
+              關閉
+            </button>
+          </div>
+          <Passage group={firstItem.group} />
+        </Modal>
+      )}
+
       {error && (
         <p className="notice notice-warn" role="alert">
           {error}
@@ -227,54 +269,55 @@ export function SessionPage() {
             </button>
           </section>
         ) : (
-          <section className="card question-card" aria-label={`第 ${pageIndex + 1} 頁`}>
+          <section
+            className={`card question-card${firstItem.group ? " with-passage" : ""}`}
+            aria-label={`第 ${pageIndex + 1} 頁`}
+          >
             <p className="question-meta">{PART_LABELS[firstItem.question.part]}</p>
-            {firstItem.group && <Passage group={firstItem.group} />}
-            {page.map((i, posInGroup) => {
-              const { question } = session.question_snapshot[i];
-              const current = selected.get(question.id) ?? null;
-              return (
-                <fieldset key={question.id} className="question">
-                  <legend className="question-stem">
-                    <span className="q-no num">{i + 1}.</span>
-                    {questionHeading(question, posInGroup)}
-                  </legend>
-                  <div className="options">
-                    {question.options.map((o) => (
-                      <label key={o.key} className={`option${current === o.key ? " chosen" : ""}`}>
-                        <input
-                          type="radio"
-                          name={`q-${question.id}`}
-                          checked={current === o.key}
-                          onChange={() => void choose(question.id, o.key)}
-                        />
-                        <span className="option-key">{o.key}</span>
-                        <span className="option-text">{o.text}</span>
-                      </label>
-                    ))}
-                  </div>
-                </fieldset>
-              );
-            })}
+            {firstItem.group ? (
+              // 桌機：左邊文章（獨立捲動）、右邊題目；較窄的畫面改為上下排列，另可從底部抽屜叫出文章
+              <div className="split" key={firstItem.group.id}>
+                <div className="split-passage" role="region" aria-label="文章" tabIndex={0}>
+                  <Passage group={firstItem.group} />
+                </div>
+                <div className="split-questions">{questions}</div>
+              </div>
+            ) : (
+              questions
+            )}
           </section>
         )}
 
+        {/* 桌機：內容下方的換頁列；1023px 以下固定在畫面底部，拇指可及 */}
         <nav className="pager" aria-label="換頁">
           <button type="button" className="btn" disabled={pageIndex === 0 || paused} onClick={() => goTo(pageIndex - 1)}>
             上一頁
           </button>
+          {firstItem.group && !paused && (
+            <button
+              type="button"
+              className="btn pager-passage"
+              aria-haspopup="dialog"
+              onClick={() => setShowPassage(true)}
+            >
+              文章
+            </button>
+          )}
           <span className="num pager-pos">
             {pageIndex + 1} / {pages.length}
           </span>
-          {pageIndex < pages.length - 1 ? (
+          {!lastPage && (
             <button type="button" className="btn btn-primary" disabled={paused} onClick={() => goTo(pageIndex + 1)}>
               下一頁
             </button>
-          ) : (
-            <button type="button" className="btn btn-primary" onClick={() => setConfirming(true)}>
-              交卷
-            </button>
           )}
+          <button
+            type="button"
+            className={`btn pager-submit${lastPage ? " btn-primary" : " compact-only"}`}
+            onClick={() => setConfirming(true)}
+          >
+            交卷
+          </button>
         </nav>
 
         <div className="palette" aria-label="題號">

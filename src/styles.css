@@ -810,6 +810,51 @@ a.btn {
 .modal .actions {
   margin-top: 16px;
 }
+
+/* 文章抽屜（1023px 以下，從底部滑出） */
+.modal.sheet {
+  width: 100%;
+  max-width: 760px;
+  max-height: 85dvh;
+  margin: auto auto 0;
+  padding: 0 20px 24px;
+  border-bottom: 0;
+}
+.sheet-head {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+  padding: 12px 0 10px;
+  background: var(--c-card);
+  border-bottom: 1px solid var(--c-border);
+}
+.sheet-head h2 {
+  margin: 0;
+  font-size: 17px;
+}
+.sheet .passages {
+  margin-bottom: 0;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .modal.sheet[open] {
+    animation: sheet-in 0.24s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+}
+@keyframes sheet-in {
+  from {
+    transform: translateY(32px);
+    opacity: 0.4;
+  }
+  to {
+    transform: none;
+    opacity: 1;
+  }
+}
 @media (max-width: 767px) {
   .session-bar {
     top: 56px;
@@ -982,6 +1027,72 @@ label.option:hover {
   opacity: 0.5;
   cursor: not-allowed;
 }
+/* 文章裡的空格 [n]：方框標示，和題目「空格 [n]」對照 */
+.blank {
+  display: inline-block;
+  min-width: 2.4em;
+  padding: 0 4px;
+  border: 1px solid var(--c-primary);
+  border-radius: var(--radius);
+  background: var(--c-card);
+  color: var(--c-primary);
+  font-weight: 600;
+  line-height: 1.5;
+  text-align: center;
+}
+
+/* Part 6／7：桌機左右對照，文章欄獨立捲動 */
+@media (min-width: 1024px) {
+  .question-card.with-passage .split {
+    display: grid;
+    grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+    gap: 28px;
+    align-items: start;
+  }
+  .split-passage {
+    position: sticky;
+    top: 84px;
+    max-height: calc(100dvh - 108px);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+  .split-passage .passages {
+    margin-bottom: 0;
+  }
+  .pager-passage,
+  .pager .compact-only {
+    display: none;
+  }
+}
+
+/* 1023px 以下：換頁列固定在畫面底部；頂部只留計時與暫停 */
+@media (max-width: 1023px) {
+  .session-bar .bar-submit {
+    display: none;
+  }
+  .pager {
+    position: sticky;
+    bottom: 0;
+    z-index: 10;
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: 1fr;
+    gap: 8px;
+    margin: 16px 0 0;
+    padding: 10px 12px calc(10px + env(safe-area-inset-bottom));
+    background: var(--c-card);
+    border: 1px solid var(--c-border);
+    border-radius: var(--radius);
+    box-shadow: 0 -6px 16px rgba(13, 34, 53, 0.08);
+  }
+  .pager .btn {
+    padding: 0 8px;
+  }
+  .pager-pos {
+    display: none;
+  }
+}
+
 .paused-card {
   text-align: center;
   padding: 40px 20px;

@@ -8,11 +8,14 @@ export function Modal({
   open,
   onClose,
   labelledBy,
+  variant = "dialog",
   children,
 }: {
   open: boolean;
   onClose: () => void;
   labelledBy: string;
+  /** sheet：從畫面底部滑出，點背景可關閉 */
+  variant?: "dialog" | "sheet";
   children: ReactNode;
 }) {
   const ref = useRef<HTMLDialogElement>(null);
@@ -30,8 +33,12 @@ export function Modal({
   return (
     <dialog
       ref={ref}
-      className="modal"
+      className={variant === "sheet" ? "modal sheet" : "modal"}
       aria-labelledby={labelledBy}
+      onClick={(e) => {
+        // 點到 dialog 本身（背景區）才關閉；點內容不會
+        if (variant === "sheet" && e.target === e.currentTarget) onClose();
+      }}
       onCancel={(e) => {
         e.preventDefault();
         onClose();
