@@ -1094,3 +1094,33 @@ label.option:hover {
   margin: 0 0 0 8px;
   vertical-align: baseline;
 }
+
+/* ---------- P5：題庫匯入 ---------- */
+.url-line {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-family: var(--font-en);
+}
+.issue-table td {
+  vertical-align: top;
+}
+.issue-list {
+  margin: 8px 0 0;
+  padding-left: 20px;
+  font-size: 14px;
+}
+.issue-list li + li {
+  margin-top: 4px;
+}
+.csv-help {
+  margin-top: 16px;
+}
+.csv-help summary {
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+}
+.csv-help[open] summary {
+  margin-bottom: 8px;
+}

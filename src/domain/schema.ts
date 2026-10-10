@@ -116,6 +116,8 @@ export const ContentGroupSchema = BaseRecordSchema.extend({
   audio_asset_id: z.uuid().nullable(),
   transcript: z.string().nullable(),
   speaker_labels: z.array(z.string()),
+  /** 題庫 Sheet 的 group_id；內建 demo 題組沒有 */
+  source_id: z.string().min(1).optional(),
 });
 export type ContentGroup = z.infer<typeof ContentGroupSchema>;
 

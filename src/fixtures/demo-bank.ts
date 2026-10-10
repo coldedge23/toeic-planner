@@ -40,7 +40,7 @@ function q(
   };
 }
 
-function group(n: number, part: Part, title: string, body: string): ContentGroup {
+function group(n: number, part: Part, sourceId: string, title: string, body: string): ContentGroup {
   return {
     id: uuid(n),
     created_at: CREATED,
@@ -51,6 +51,7 @@ function group(n: number, part: Part, title: string, body: string): ContentGroup
     audio_asset_id: null,
     transcript: null,
     speaker_labels: [],
+    source_id: sourceId,
   };
 }
 
@@ -61,6 +62,7 @@ export const demoGroups: ContentGroup[] = [
   group(
     1001,
     6,
+    "demo-P6-G001",
     "Memo: Parking Lot Resurfacing",
     [
       "To: All Staff",
@@ -76,6 +78,7 @@ export const demoGroups: ContentGroup[] = [
   group(
     1002,
     7,
+    "demo-P7-G001",
     "E-mail: Order Confirmation",
     [
       "From: customer.service@brightleafsupply.com",

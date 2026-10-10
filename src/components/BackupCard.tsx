@@ -1,5 +1,6 @@
 import { useRef, useState } from "react";
 import { repos } from "@/storage";
+import { downloadText } from "@/lib/download";
 import { backupFileName, parseBackup } from "@/domain/backup-migrations";
 import { todayInTaipei } from "@/domain/dates";
 import type { Backup } from "@/domain/schema";
@@ -26,13 +27,7 @@ function counts(b: Backup) {
 
 async function downloadBackup() {
   const backup = await repos.backups.exportAll();
-  const blob = new Blob([JSON.stringify(backup, null, 2)], { type: "application/json" });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = backupFileName(todayInTaipei());
-  a.click();
-  URL.revokeObjectURL(url);
+  downloadText(JSON.stringify(backup, null, 2), backupFileName(todayInTaipei()), "application/json");
 }
 
 export function BackupCard({ onRestored }: { onRestored?: () => void | Promise<void> }) {

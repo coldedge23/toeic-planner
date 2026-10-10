@@ -3,6 +3,7 @@ import type {
   Attempt,
   Backup,
   ContentGroup,
+  ImportBatch,
   MistakeItem,
   Part,
   OptionKey,
@@ -13,6 +14,7 @@ import type {
   StudyPlan,
   StudyTask,
 } from "@/domain/schema";
+import type { CsvRow, ImportPlan } from "@/domain/import-validator";
 
 /**
  * 儲存層介面。畫面只透過這些介面讀寫，之後接雲端（例如 Supabase）時替換實作即可。
@@ -49,9 +51,23 @@ export interface BankStats {
   byPart: Partial<Record<Part, number>>;
 }
 
+export interface ImportCommitResult {
+  batch: ImportBatch;
+  summary: ImportPlan["summary"];
+  notices: ImportPlan["notices"];
+}
+
 export interface BankRepository {
   /** 寫入內建 demo 題庫；以固定 id 覆蓋，重複呼叫不會重複新增。 */
   seedDemo(): Promise<void>;
+  /** 全部題目（含草稿與退回）與題組，供匯入比對與匯出。 */
+  listAll(): Promise<{ questions: Question[]; groups: ContentGroup[] }>;
+  /**
+   * 在單一交易中重新比對並寫入匯入結果，同時記錄匯入批次。
+   * 驗證有錯誤的資料不可傳入（呼叫端先擋下）。
+   */
+  commitImport(input: { rows: CsvRow[]; source: string; checksum: string }): Promise<ImportCommitResult>;
+  listImportBatches(limit: number): Promise<ImportBatch[]>;
   /** 只統計可被抽題的「已審核」題目。 */
   stats(): Promise<BankStats>;
   listApproved(parts?: readonly Part[]): Promise<Question[]>;

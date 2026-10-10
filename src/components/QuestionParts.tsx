@@ -13,8 +13,14 @@ export function Passage({ group }: { group: ContentGroup }) {
   );
 }
 
-/** Part 6 題幹留白時，以文章中的空格編號作為題目標題。 */
+/**
+ * Part 6 的題幹可填空格編號（例如 [2]）或留白；留白時依題組內順序推算空格編號。
+ */
 export function questionHeading(question: Question, posInGroup: number) {
-  if (question.stem.trim() !== "") return <span lang="en">{question.stem}</span>;
-  return <span>選出最適合填入空格 [{posInGroup + 1}] 的選項</span>;
+  const stem = question.stem.trim();
+  const blank = /^\[(\d+)\]$/.exec(stem);
+  if (question.part === 6 && (stem === "" || blank)) {
+    return <span>選出最適合填入空格 [{blank ? blank[1] : posInGroup + 1}] 的選項</span>;
+  }
+  return <span lang="en">{stem}</span>;
 }

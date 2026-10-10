@@ -2,7 +2,10 @@ import {
   AnswerSchema,
   AttemptSchema,
   BackupSchema,
+  ContentGroupSchema,
+  ImportBatchSchema,
   MistakeItemSchema,
+  QuestionSchema,
   SessionSchema,
   SCHEMA_VERSION,
   SettingsInputSchema,
@@ -19,6 +22,7 @@ import {
 import { nowIso } from "@/domain/dates";
 import { gradeSession, pauseSession, resumeSession } from "@/domain/exam-engine";
 import { applyAttempts, clearItems, restoreItem } from "@/domain/mistake-policy";
+import { planImport } from "@/domain/import-validator";
 import { demoGroups, demoQuestions } from "@/fixtures/demo-bank";
 import type { BankStats, MistakeEntry, Repositories } from "../Repository";
 import type { ToeicDB } from "./db";
@@ -102,6 +106,40 @@ export function createDexieRepositories(db: ToeicDB): Repositories {
     },
 
     bank: {
+      async listAll() {
+        return { questions: await db.questions.toArray(), groups: await db.content_groups.toArray() };
+      },
+      async commitImport({ rows, source, checksum }) {
+        return db.transaction("rw", [db.questions, db.content_groups, db.import_batches], async () => {
+          const now = nowIso();
+          const plan = planImport(
+            rows,
+            await db.questions.toArray(),
+            await db.content_groups.toArray(),
+            now,
+            () => crypto.randomUUID(),
+          );
+          await db.content_groups.bulkPut(plan.groups.map((g) => ContentGroupSchema.parse(g)));
+          await db.questions.bulkPut(plan.questions.map((q) => QuestionSchema.parse(q)));
+          const batch = ImportBatchSchema.parse({
+            id: crypto.randomUUID(),
+            created_at: now,
+            updated_at: now,
+            source,
+            checksum,
+            status: "committed",
+            valid_count: rows.filter((r) => r.status === "approved").length,
+            errors: plan.notices,
+            committed_at: now,
+          });
+          await db.import_batches.add(batch);
+          return { batch, summary: plan.summary, notices: plan.notices };
+        });
+      },
+      async listImportBatches(limit) {
+        const all = await db.import_batches.toArray();
+        return all.sort((a, b) => b.created_at.localeCompare(a.created_at)).slice(0, limit);
+      },
       async seedDemo() {
         await db.transaction("rw", db.content_groups, db.questions, async () => {
           await db.content_groups.bulkPut(demoGroups);
