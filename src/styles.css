@@ -1184,6 +1184,26 @@ label.option:hover {
   display: block;
   margin-bottom: 2px;
 }
+details.explanation summary {
+  cursor: pointer;
+  font-weight: 700;
+}
+details.explanation[open] summary {
+  margin-bottom: 2px;
+}
+.score-facts {
+  margin: 4px 0 10px;
+  padding: 0;
+  list-style: none;
+  font-size: 15px;
+}
+.score-facts li + li {
+  margin-top: 2px;
+}
+.score-facts a {
+  margin-left: 8px;
+  white-space: nowrap;
+}
 .review-passage {
   margin: 16px 0 0;
   padding: 10px 14px;

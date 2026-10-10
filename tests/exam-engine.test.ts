@@ -5,10 +5,12 @@ import {
   checkAvailability,
   describeSelectError,
   formatPercent,
+  formatPointDelta,
   gradeSession,
   isExpired,
   pageUnits,
   pauseSession,
+  previousComparable,
   remainingMs,
   resumeSession,
   selectQuestions,
@@ -176,5 +178,33 @@ describe("pageUnits", () => {
     const pages = pageUnits(s);
     expect(pages.flat()).toEqual(s.question_snapshot.map((_, i) => i));
     expect(pages).toHaveLength(6 + 2);
+  });
+});
+
+describe("previousComparable／formatPointDelta", () => {
+  const submitted = (source: "bank" | "mistakes", at: string): Session => ({
+    ...makeSession(5, null),
+    id: newId(),
+    source,
+    status: "submitted",
+    submitted_at: at,
+  });
+
+  it("找同來源、較早交卷的最近一場；錯題重考與一般練習分開比", () => {
+    const a = submitted("bank", "2026-10-01T00:00:00.000Z");
+    const b = submitted("bank", "2026-10-05T00:00:00.000Z");
+    const m = submitted("mistakes", "2026-10-07T00:00:00.000Z");
+    const later = submitted("bank", "2026-10-20T00:00:00.000Z");
+    const current = submitted("bank", "2026-10-10T00:00:00.000Z");
+    const all = [a, b, m, later, current];
+    expect(previousComparable(all, current)?.id).toBe(b.id);
+    expect(previousComparable(all, a)).toBeNull();
+    expect(previousComparable(all, m)).toBeNull();
+  });
+
+  it("百分點差：正負號與一位小數", () => {
+    expect(formatPointDelta(0.8, 0.675)).toBe("+12.5");
+    expect(formatPointDelta(0.4, 0.43)).toBe("−3.0");
+    expect(formatPointDelta(0.5, 0.5)).toBe("±0.0");
   });
 });

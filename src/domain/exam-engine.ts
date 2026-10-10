@@ -284,6 +284,27 @@ export function gradeSession(session: Session, answers: readonly Answer[]): Grad
 }
 
 /** 98.5% 格式（保留一位小數）。 */
+/**
+ * 找出「上一次同類練習」：同來源（一般題庫或錯題本）、在這場之前交卷的最近一場。
+ * 錯題重考和一般練習分開比，避免題目難度不同造成誤判。
+ */
+export function previousComparable(sessions: readonly Session[], current: Session): Session | null {
+  let best: Session | null = null;
+  for (const s of sessions) {
+    if (s.id === current.id || s.status !== "submitted" || s.source !== current.source) continue;
+    if (!s.submitted_at || !current.submitted_at || s.submitted_at >= current.submitted_at) continue;
+    if (!best || s.submitted_at > best.submitted_at!) best = s;
+  }
+  return best;
+}
+
+/** 兩次正確率的差，以百分點表示，例如 +12.5、−3.0、±0.0 */
+export function formatPointDelta(current: number, previous: number): string {
+  const diff = Math.round((current - previous) * 1000) / 10;
+  if (diff === 0) return "±0.0";
+  return `${diff > 0 ? "+" : "−"}${Math.abs(diff).toFixed(1)}`;
+}
+
 export function formatPercent(ratio: number): string {
   return `${(Math.round(ratio * 1000) / 10).toFixed(1)}%`;
 }
