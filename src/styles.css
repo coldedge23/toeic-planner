@@ -136,6 +136,9 @@ textarea {
   font-size: 12px;
   color: var(--c-sidebar-muted);
 }
+.nav a.active .nav-index {
+  color: var(--c-sidebar-text);
+}
 
 .sidebar-foot {
   margin-top: auto;
@@ -569,6 +572,28 @@ textarea {
 .table-scroll {
   overflow-x: auto;
 }
+.table .col-action {
+  white-space: nowrap;
+}
+@media (max-width: 479px) {
+  .table .col-time {
+    display: none;
+  }
+  .history-table th,
+  .history-table td {
+    padding-left: 4px;
+    padding-right: 4px;
+    white-space: nowrap;
+  }
+  .history-table th:first-child,
+  .history-table td:first-child {
+    padding-left: 0;
+  }
+  .history-table th:last-child,
+  .history-table td:last-child {
+    padding-right: 0;
+  }
+}
 .diff-table td {
   vertical-align: top;
   min-width: 120px;
@@ -704,6 +729,11 @@ a.btn {
   min-height: 40px;
   padding: 0 14px;
   font-size: 14px;
+}
+@media (pointer: coarse) {
+  .btn-small {
+    min-height: 44px;
+  }
 }
 .fieldset {
   margin: 0;
@@ -914,6 +944,13 @@ a.btn {
   font-size: 16px;
   line-height: 1.7;
   overflow-wrap: anywhere;
+}
+legend.question-stem {
+  float: left;
+  width: 100%;
+}
+.question > .options {
+  clear: both;
 }
 .q-no {
   margin-right: 8px;
@@ -1177,7 +1214,8 @@ label.option:hover {
   margin-top: 12px;
   padding: 12px 14px;
   background: var(--c-bg);
-  border-left: 3px solid var(--c-border);
+  border: 1px solid var(--c-border);
+  border-radius: var(--radius);
   font-size: 14px;
 }
 .explanation strong {

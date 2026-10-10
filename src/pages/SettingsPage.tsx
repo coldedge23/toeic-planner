@@ -266,7 +266,7 @@ export function SettingsPage() {
         <section className="card">
           <h2>題庫來源</h2>
           <p className="card-desc">
-            內建 demo 題庫一直可以用。之後建立題庫 Sheet 並「發佈到網路」成 CSV 後，把網址貼在這裡；讀取功能在 P5 開放。
+            把題庫 Sheet「發布到網路」產生的 CSV 網址貼在這裡，儲存後到「題庫」頁按「重新載入」匯入。沒有填寫時，使用內建的 demo 題庫。
           </p>
           <label className="field">
             <span className="field-label">題庫 Sheet 的 CSV 網址（選填）</span>

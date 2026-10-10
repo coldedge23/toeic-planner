@@ -144,7 +144,7 @@ export function ResultPage() {
 
   return (
     <>
-      <PageHeader title="模擬考" subtitle="交卷結果與逐題檢討" />
+      <PageHeader title="測驗結果" subtitle="交卷結果與逐題檢討" />
 
       <section className="card score-card">
         <div className="score-main">

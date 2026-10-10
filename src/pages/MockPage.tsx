@@ -225,7 +225,7 @@ function History() {
         </ResponsiveContainer>
       </div>
       <div className="table-scroll">
-        <table className="table">
+        <table className="table history-table">
           <thead>
             <tr>
               <th scope="col">交卷時間</th>
@@ -236,10 +236,10 @@ function History() {
               <th scope="col" className="num">
                 正確率
               </th>
-              <th scope="col" className="num">
+              <th scope="col" className="num col-time">
                 用時
               </th>
-              <th scope="col">
+              <th scope="col" className="col-action">
                 <span className="sr-only">檢討</span>
               </th>
             </tr>
@@ -249,14 +249,16 @@ function History() {
               <tr key={h.session.id}>
                 <td className="num nowrap">{dateTime.format(new Date(h.session.submitted_at!))}</td>
                 <td className="num nowrap">
-                  {h.session.source === "mistakes" && <span className="tag">錯題</span>} {h.session.parts.join("・")}
+                  {h.session.source === "mistakes" && <span className="tag">錯題</span>}{" "}
+                  {/* 顯示實際抽到的 Part，而不是開考時勾選的 Part */}
+                  {[...new Set(h.session.question_snapshot.map((it) => it.question.part))].sort().join("・")}
                 </td>
                 <td className="num">
                   {h.correct}/{h.total}
                 </td>
                 <td className="num">{formatPercent(h.total ? h.correct / h.total : 0)}</td>
-                <td className="num">{formatDuration(activeElapsedMs(h.session, new Date()))}</td>
-                <td>
+                <td className="num col-time">{formatDuration(activeElapsedMs(h.session, new Date()))}</td>
+                <td className="col-action">
                   <Link to={`/sessions/${h.session.id}/result`}>檢討</Link>
                 </td>
               </tr>
