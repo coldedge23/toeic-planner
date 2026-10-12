@@ -1,4 +1,5 @@
 import { BackupSchema, SCHEMA_VERSION, type Backup } from "./schema";
+import { validateBackup } from "./backup-integrity";
 
 type Raw = Record<string, unknown>;
 
@@ -7,15 +8,20 @@ type Raw = Record<string, unknown>;
  * 新增版本時：SCHEMA_VERSION +1，並在這裡補上一個遷移步驟。
  */
 const MIGRATIONS: Record<number, (raw: Raw) => Raw> = {
+  2: (raw) => ({
+    ...raw,
+    schema_version: 3,
+    sessions: Array.isArray(raw.sessions) ? raw.sessions.map((s: Raw) => ({ ...s, study_task_id: null })) : raw.sessions,
+  }),
   // v1 → v2：測驗紀錄新增暫停欄位
   1: (raw) => ({
     ...raw,
     schema_version: 2,
-    sessions: ((raw.sessions as Raw[] | undefined) ?? []).map((s) => ({
+    sessions: Array.isArray(raw.sessions) ? (raw.sessions as Raw[]).map((s) => ({
       paused_at: null,
       paused_ms: 0,
       ...s,
-    })),
+    })) : raw.sessions,
   }),
 };
 
@@ -51,7 +57,12 @@ export function parseBackup(text: string): BackupParseResult {
     const issue = parsed.error.issues[0];
     return { ok: false, error: `備份內容格式錯誤：${issue.path.join(".") || "(根層)"} — ${issue.message}` };
   }
-  return { ok: true, backup: parsed.data, migratedFrom: version === SCHEMA_VERSION ? null : version };
+  try {
+    const backup = validateBackup(parsed.data);
+    return { ok: true, backup, migratedFrom: version === SCHEMA_VERSION ? null : version };
+  } catch (error) {
+    return { ok: false, error: error instanceof Error ? error.message : "備份資料關聯錯誤" };
+  }
 }
 
 /** 依使用者的檔名規則：YYYYMMDD_主題_vN（vN 為備份格式版本）。 */

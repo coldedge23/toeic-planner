@@ -11,12 +11,14 @@ import {
   formatPercent,
   formatPointDelta,
   gradeSession,
+  fixSnapshotBlankNumbers,
   previousComparable,
   selectQuestions,
   type GradedItem,
 } from "@/domain/exam-engine";
 import { PART_LABELS, READING_PARTS } from "@/domain/schema";
 import { CheckIcon, CrossIcon } from "@/components/ui";
+import { TaskCompletionCard } from "@/components/TaskCompletionCard";
 
 
 function ReviewItem({ item, total, posInGroup }: { item: GradedItem; total: number; posInGroup: number }) {
@@ -77,8 +79,9 @@ export function ResultPage() {
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
   const data = useLiveQuery(async () => {
-    const session = await repos.sessions.get(id);
-    if (!session) return null;
+    const saved = await repos.sessions.get(id);
+    if (!saved) return null;
+    const session = { ...saved, question_snapshot: fixSnapshotBlankNumbers(saved.question_snapshot) };
     const answers = await repos.sessions.getAnswers(id);
     const prev = previousComparable(await repos.sessions.listSubmitted(), session);
     const prevAttempts = prev ? await repos.sessions.listAttempts(prev.id) : [];
@@ -204,6 +207,7 @@ export function ResultPage() {
         </div>
       </section>
 
+      <TaskCompletionCard sessionId={session.id} />
       <section className="card">
         <div className="plan-head">
           <h2>逐題檢討</h2>

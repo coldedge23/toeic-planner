@@ -15,7 +15,9 @@ import {
   isExpired,
   selectQuestions,
 } from "@/domain/exam-engine";
-import { PART_LABELS, READING_PARTS, type ReadingPart } from "@/domain/schema";
+import { PART_LABELS, READING_PARTS, type ReadingPart, type StudyTask } from "@/domain/schema";
+import { recommendTaskPractice } from "@/domain/task-practice";
+import { formatDateLabel } from "@/domain/dates";
 
 const SECONDS_OPTIONS: { value: number | null; label: string }[] = [
   { value: null, label: "不限時" },
@@ -50,9 +52,11 @@ function readInitial(params: URLSearchParams) {
   };
 }
 
-function StartForm() {
+function StartForm({ task, recommendation }: { task?: StudyTask; recommendation?: ReturnType<typeof recommendTaskPractice> }) {
   const [params] = useSearchParams();
-  const initial = useMemo(() => readInitial(params), [params]);
+  const initial = useMemo(() => task && recommendation ? {
+    source: "bank" as const, parts: recommendation.parts, count: String(recommendation.count), seconds: recommendation.seconds,
+  } : readInitial(params), [params, task, recommendation]);
   const [source, setSource] = useState<"bank" | "mistakes">(initial.source);
   const [parts, setParts] = useState<ReadingPart[]>(initial.parts);
   const [count, setCount] = useState(initial.count);
@@ -77,7 +81,7 @@ function StartForm() {
   const onSubmit = async (e: FormEvent) => {
     e.preventDefault();
     if (!bank) return;
-    const config = { source, parts, count: Number(count), secondsPerQuestion: seconds };
+    const config = { source, parts, count: Number(count), secondsPerQuestion: seconds, studyTaskId: task?.id ?? null };
     const result = selectQuestions(bank.questions, bank.groups, config);
     if (!result.ok) {
       setError(describeSelectError(result));
@@ -97,10 +101,17 @@ function StartForm() {
 
   return (
     <section className="card">
-      <h2>開始模擬考</h2>
+      <h2>{task ? "任務練習" : "開始模擬考"}</h2>
+      {task && recommendation && (
+        <>
+          <p className="card-desc">{formatDateLabel(task.date)}｜{task.title}｜預計 {task.minutes} 分鐘</p>
+          {recommendation.count > 0 && <p className="notice">建議 {recommendation.count} 題，每題約 {recommendation.seconds} 秒。這是練習量估算，可調整題數與時限；交卷後仍需你確認是否完成任務。</p>}
+          {recommendation.notice && <p className="notice notice-warn" role="status">{recommendation.notice}</p>}
+        </>
+      )}
       <form onSubmit={onSubmit} noValidate>
         <div className="form-grid">
-          <fieldset className="field fieldset">
+          <fieldset className="field fieldset" disabled={!!task}>
             <legend className="field-label">Part（可複選）</legend>
             <div className="toggle-row">
               {READING_PARTS.map((p) => (
@@ -152,7 +163,7 @@ function StartForm() {
             <span className="field-hint">總時限 = 題數 × 每題秒數；時間到自動交卷，可暫停。</span>
           </label>
 
-          <fieldset className="field fieldset">
+          <fieldset className="field fieldset" disabled={!!task}>
             <legend className="field-label">來源與模式</legend>
             <label className="inline-check">
               <input
@@ -188,13 +199,26 @@ function StartForm() {
           </p>
         )}
         <div className="actions">
-          <button type="submit" className="btn btn-primary" disabled={busy || !bank}>
+          <button type="submit" className="btn btn-primary" disabled={busy || !bank || recommendation?.count === 0}>
             {busy ? "準備中…" : "開始"}
           </button>
+          {task && <Link className="btn" to="/today">返回今日</Link>}
         </div>
       </form>
     </section>
   );
+}
+
+function TaskPracticeStart({ taskId }: { taskId: string }) {
+  const data = useLiveQuery(async () => {
+    const task = await repos.plans.getTask(taskId);
+    const plan = await repos.plans.getActivePlan();
+    if (!task || task.plan_id !== plan?.id || task.completed_at !== null) return null;
+    return { task, recommendation: recommendTaskPractice(task, await repos.bank.listApproved()) };
+  }, [taskId]);
+  if (data === undefined) return <p className="loading">讀取任務…</p>;
+  if (!data) return <p className="notice notice-warn">任務已完成或已重新排程。請<Link to="/today">回今日頁</Link>選擇目前任務，或<Link to="/mock">開始自由練習</Link>。</p>;
+  return <StartForm key={taskId} task={data.task} recommendation={data.recommendation} />;
 }
 
 function History() {
@@ -271,6 +295,8 @@ function History() {
 }
 
 export function MockPage() {
+  const [params] = useSearchParams();
+  const taskId = params.get("task");
   const inProgress = useInProgressSession();
 
   // 在其他頁面時時間已到：回到這頁時自動交卷（與作答頁相同規則）
@@ -297,7 +323,7 @@ export function MockPage() {
           </div>
         </section>
       ) : inProgress === null ? (
-        <StartForm />
+        taskId ? <TaskPracticeStart key={taskId} taskId={taskId} /> : <StartForm key={params.toString()} />
       ) : (
         <p className="loading">讀取中…</p>
       )}

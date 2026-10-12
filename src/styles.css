@@ -720,6 +720,9 @@ textarea {
   text-decoration: line-through;
   color: var(--c-muted);
 }
+.task-actions {
+  padding: 0 0 12px 30px;
+}
 
 /* ---------- P3：模擬考 ---------- */
 a.btn {

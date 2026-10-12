@@ -1,5 +1,6 @@
 import "fake-indexeddb/auto";
-import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import Dexie from "dexie";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { applyAttempts, clearItems, MASTERY_STREAK, restoreItem } from "@/domain/mistake-policy";
 import { backupFileName, parseBackup } from "@/domain/backup-migrations";
 import { buildSession, selectQuestions } from "@/domain/exam-engine";
@@ -71,6 +72,9 @@ describe("mistake-policy", () => {
 });
 
 describe("parseBackup", () => {
+  it("損壞的舊版 sessions 不會讓解析拋出例外", () => {
+    expect(parseBackup(JSON.stringify({ schema_version: 1, sessions: {} })).ok).toBe(false);
+  });
   it("損壞的 JSON", () => {
     expect(parseBackup("{not json")).toEqual({ ok: false, error: "檔案不是有效的 JSON，可能已損壞" });
     expect(parseBackup("[]").ok).toBe(false);
@@ -232,6 +236,74 @@ describe("Dexie：錯題與備份", () => {
     expect(sortAll(again)).toEqual(sortAll(backup));
     expect(await repos2.mistakes.countActive()).toBe(6);
     await db2.delete();
+  });
+
+  it("關聯損壞的備份不可還原，原資料保留", async () => {
+    await takeSession(demoQuestions.slice(0, 1), () => false);
+    const backup = await repos.backups.exportAll();
+    const broken = { ...backup, sessions: [] };
+    expect(parseBackup(JSON.stringify(broken)).ok).toBe(false);
+    await expect(repos.backups.importAll(broken)).rejects.toThrow();
+    expect(await db.sessions.count()).toBe(1);
+  });
+
+  it("跨連線交卷發生在匯出期間，備份仍是交卷前的一致快照", async () => {
+    const q = demoQuestions[0];
+    const session = buildSession({ source: "bank", parts: [5], count: 1, secondsPerQuestion: null },
+      [{ question: q, group: null }], T0, () => crypto.randomUUID());
+    await repos.sessions.create(session);
+    const other = new ToeicDB(db.name);
+    await other.open();
+    let write: Promise<unknown> | undefined;
+    const original = db.sessions.toArray.bind(db.sessions);
+    const spy = vi.spyOn(db.sessions, "toArray").mockImplementation(() => original().then((result) => {
+      Dexie.ignoreTransaction(() => { write = createDexieRepositories(other).sessions.submit(session.id, T0); });
+      return result;
+    }));
+    try {
+      const backup = await repos.backups.exportAll();
+      expect(backup.sessions[0].status).toBe("in_progress");
+      expect(backup.attempts).toEqual([]);
+      expect(backup.mistake_items).toEqual([]);
+      await write;
+      expect((await repos.sessions.get(session.id))?.status).toBe("submitted");
+    } finally {
+      spy.mockRestore();
+      other.close();
+    }
+  });
+
+  it("交卷紀錄缺題與錯誤評分都不可還原", async () => {
+    await takeSession(demoQuestions.slice(0, 2), () => false);
+    const backup = await repos.backups.exportAll();
+    expect(parseBackup(JSON.stringify({ ...backup, attempts: backup.attempts.slice(1) })).ok).toBe(false);
+    const wrongGrade = { ...backup, attempts: backup.attempts.map((a) => ({ ...a, is_correct: true })) };
+    await expect(repos.backups.importAll(wrongGrade)).rejects.toThrow();
+    expect(await db.attempts.count()).toBe(2);
+    const differentAnswers = { ...backup, answers: backup.answers.map((a) => ({ ...a, selected_key: null })) };
+    expect(parseBackup(JSON.stringify(differentAnswers)).ok).toBe(false);
+  });
+
+  it("全組測驗的結果只重考第二個空格，仍沿用原編號", () => {
+    const p6 = demoQuestions.filter((q) => q.part === 6).map((q) => ({ ...q, stem: "" }));
+    const session = buildSession({ source: "bank", parts: [6], count: p6.length, secondsPerQuestion: null },
+      p6.map((question) => ({ question, group: demoGroups.find((g) => g.id === question.group_id)! })), T0, newId);
+    expect(session.question_snapshot[1].question.stem).toBe("[2]");
+    const item = session.question_snapshot[1];
+    const picked = selectQuestions([item.question], [item.group!], { source: "mistakes", parts: [6], count: 1, secondsPerQuestion: null });
+    expect(picked.ok && picked.items[0].question.stem).toBe("[2]");
+    expect(p6[1].stem).toBe("");
+  });
+
+  it("Part 6 留白題幹只重考第二題時，快照仍保留空格 [2]", async () => {
+    const p6 = demoQuestions.filter((q) => q.part === 6);
+    await db.questions.bulkPut(p6.map((q) => ({ ...q, stem: "" })));
+    await takeSession(p6, (q) => q.id !== p6[1].id);
+    const questions = await repos.mistakes.activeQuestions();
+    expect(questions).toHaveLength(1);
+    expect(questions[0].stem).toBe("[2]");
+    const picked = selectQuestions(questions, demoGroups, { source: "mistakes", parts: [6], count: 1, secondsPerQuestion: null });
+    expect(picked.ok && picked.items[0].question.stem).toBe("[2]");
   });
 
   it("舊版（v1）備份會自動遷移後匯入", async () => {

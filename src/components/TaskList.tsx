@@ -1,10 +1,11 @@
 import { useState } from "react";
+import { Link } from "react-router";
 import { repos } from "@/storage";
 import { formatDateLabel } from "@/domain/dates";
 import { PHASE_LABELS } from "@/domain/planner";
 import type { StudyTask } from "@/domain/schema";
 
-export function TaskItem({ task, showDate = false }: { task: StudyTask; showDate?: boolean }) {
+export function TaskItem({ task, showDate = false, practice = false }: { task: StudyTask; showDate?: boolean; practice?: boolean }) {
   const [error, setError] = useState(false);
   const done = task.completed_at !== null;
 
@@ -29,6 +30,11 @@ export function TaskItem({ task, showDate = false }: { task: StudyTask; showDate
         </span>
         <span className="task-minutes num">{task.minutes} 分</span>
       </label>
+      {practice && !done && (
+        <div className="task-actions">
+          <Link className="btn btn-small" to={`/mock?task=${task.id}`} aria-label={`開始練習：${task.title}`}>開始練習</Link>
+        </div>
+      )}
       {error && <span className="field-error">更新失敗，請再試一次</span>}
     </li>
   );

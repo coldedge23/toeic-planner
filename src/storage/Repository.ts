@@ -28,6 +28,9 @@ export interface SettingsRepository {
 }
 
 export interface PlansRepository {
+  getTask(taskId: string): Promise<StudyTask | null>;
+  /** 使用者在交卷後明確確認才完成任務；重複確認不改寫完成時間。 */
+  completeFromSession(sessionId: string): Promise<void>;
   getActivePlan(): Promise<StudyPlan | null>;
   listTasks(planId: string): Promise<StudyTask[]>;
   /** 建立第一份計畫；已有生效中的計畫時拋出錯誤（請改用 applyReschedule）。 */
@@ -58,7 +61,7 @@ export interface ImportCommitResult {
 }
 
 export interface BankRepository {
-  /** 寫入內建 demo 題庫；以固定 id 覆蓋，重複呼叫不會重複新增。 */
+  /** 僅補入缺少的內建 demo 題庫；既有題目與文章不覆寫。 */
   seedDemo(): Promise<void>;
   /** 全部題目（含草稿與退回）與題組，供匯入比對與匯出。 */
   listAll(): Promise<{ questions: Question[]; groups: ContentGroup[] }>;

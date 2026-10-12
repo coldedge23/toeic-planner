@@ -7,8 +7,10 @@ import type {
   ReadingPart,
   Session,
 } from "./schema";
+import { numberPart6Questions } from "./blank-numbers";
 
 export interface SessionConfig {
+  studyTaskId?: string | null;
   /** bank = 題庫（題組整組抽）；mistakes = 錯題本（只出答錯的題目，同題組相鄰並附文章） */
   source: "bank" | "mistakes";
   parts: ReadingPart[];
@@ -182,9 +184,10 @@ export function buildSession(
     created_at: iso,
     updated_at: iso,
     mode: "practice",
+    study_task_id: config.studyTaskId ?? null,
     source: config.source,
     parts: [...config.parts].sort((a, b) => a - b),
-    question_snapshot: items,
+    question_snapshot: fixSnapshotBlankNumbers(items),
     seconds_per_question: config.secondsPerQuestion,
     started_at: iso,
     deadline_at:
@@ -197,6 +200,12 @@ export function buildSession(
     status: "in_progress",
     idempotency_key: newId(),
   };
+}
+
+/** 全組測驗在篩選錯題前固定空格編號，讓歷史結果的「只重考錯題」也沿用原編號。 */
+export function fixSnapshotBlankNumbers(items: SnapshotItem[]): SnapshotItem[] {
+  const numbered = numberPart6Questions(items.map((i) => i.question));
+  return items.map((item, index) => ({ ...item, question: numbered[index] }));
 }
 
 /** 剩餘毫秒；不限時回傳 null。暫停中以暫停當下計算（時間凍結）。 */

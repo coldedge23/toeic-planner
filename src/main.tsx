@@ -6,7 +6,7 @@ import { registerSW } from "virtual:pwa-register";
 import { repos } from "./storage";
 import "./styles.css";
 
-// demo 題庫以固定 id 覆蓋寫入，每次啟動呼叫也不會重複新增。
+// demo 題庫只補入缺少的資料，保留既有修改與下架狀態。
 repos.bank.seedDemo().catch((err) => console.error("demo 題庫寫入失敗", err));
 
 // 註冊 service worker：離線可用；有新版時自動更新

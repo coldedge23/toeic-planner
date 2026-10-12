@@ -277,6 +277,8 @@ export function planImport(
 
   // 題組
   const groupIdBySource = new Map<string, string>();
+  const blockedGroups = new Set<string>();
+  const rowBySource = new Map(rows.map((r) => [r.sourceId, r]));
   const approved = rows.filter((r) => r.status === "approved");
   for (const r of approved) {
     if (!r.groupSourceId || groupIdBySource.has(r.groupSourceId)) continue;
@@ -285,6 +287,26 @@ export function planImport(
     const existing = gBySource.get(r.groupSourceId);
     groupIdBySource.set(r.groupSourceId, existing?.id ?? newId());
     if (existing && JSON.stringify(existing.passages) === JSON.stringify(passages) && existing.part === r.part) continue;
+    if (existing) {
+      const incoming = approved.filter((q) => q.groupSourceId === r.groupSourceId);
+      const members = existingQuestions.filter((q) => q.group_id === existing.id);
+      const missingOrOld = members.some((q) => {
+        const next = rowBySource.get(q.source_id);
+        // 明確下架的題目可保留舊版本；仍在使用者須隨文章升版。
+        if (next && next.status !== "approved") return false;
+        if (!next) return q.status === "approved";
+        return next.groupSourceId !== r.groupSourceId || next.version <= q.version;
+      });
+      const incomingOld = incoming.some((next) => {
+        const q = qBySource.get(next.sourceId);
+        return q && next.version <= q.version;
+      });
+      if (missingOrOld || incomingOld) {
+        blockedGroups.add(r.groupSourceId);
+        plan.notices.push({ row: r.row, field: "version", message: `題組 ${r.groupSourceId} 的文章已修改；請提供所有仍在使用的同組題目並將版本加 1。文章與同組題目已一併略過` });
+        continue;
+      }
+    }
     plan.groups.push({
       id: groupIdBySource.get(r.groupSourceId)!,
       created_at: existing?.created_at ?? now,
@@ -309,6 +331,9 @@ export function planImport(
       else plan.summary.skippedRejected += 1;
       continue;
     }
+
+    if ((r.groupSourceId && blockedGroups.has(r.groupSourceId)) ||
+        (existing?.group_id && existingGroups.some((g) => g.id === existing.group_id && g.source_id && blockedGroups.has(g.source_id)))) continue;
 
     const content = {
       group_id: r.groupSourceId ? groupIdBySource.get(r.groupSourceId)! : null,
@@ -341,10 +366,6 @@ export function planImport(
         field: "version",
         message: `內容與 App 內不同，但版本沒有加 1（仍是 v${r.version}），已略過；修改題目請把 version 加 1`,
       });
-      if (existing.status !== "approved") {
-        plan.questions.push({ ...existing, status: "approved", updated_at: now });
-        plan.summary.updated += 1;
-      }
     } else if (existing.status !== "approved") {
       plan.questions.push({ ...existing, status: "approved", updated_at: now });
       plan.summary.updated += 1;

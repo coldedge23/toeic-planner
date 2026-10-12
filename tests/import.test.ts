@@ -116,6 +116,35 @@ describe("planImport", () => {
   let n = 0;
   const newId = () => `00000000-0000-4000-9000-${(++n).toString().padStart(12, "0")}`;
 
+  it("退回題目改內容但未升版，不可重新上架舊內容", () => {
+    const first = planImport(validateCsv(csv(P5("P5-0099"))).rows, [], [], NOW, newId);
+    const existing = first.questions.map((q) => ({ ...q, status: "rejected" as const }));
+    const changed = validateCsv(csv(P5("P5-0099", { answer: "C" }))).rows;
+    const blocked = planImport(changed, existing, [], NOW, newId);
+    expect(blocked.questions).toEqual([]);
+    expect(blocked.notices[0].message).toContain("版本沒有加 1");
+    changed[0].version = 2;
+    expect(planImport(changed, existing, [], NOW, newId).questions[0]).toMatchObject({ status: "approved", correct_key: "C", version: 2 });
+  });
+
+  it("文章改版時，所有仍在使用的同組題目都必須升版，否則整組不更新", () => {
+    const first = planImport(validateCsv(csv(...P7)).rows, [], [], NOW, newId);
+    const rows = validateCsv(csv(...P7)).rows;
+    rows[0].passage = "Changed passage";
+    rows[0].version = 2;
+    const blocked = planImport(rows, first.questions, first.groups, NOW, newId);
+    expect(blocked.groups).toEqual([]);
+    expect(blocked.questions).toEqual([]);
+    expect(blocked.notices.length).toBeGreaterThan(0);
+    rows[1].version = 2;
+    const updated = planImport(rows, first.questions, first.groups, NOW, newId);
+    expect(updated.groups[0].passages).toEqual([{ body: "Changed passage" }]);
+    expect(updated.questions.map((q) => q.version)).toEqual([2, 2]);
+    const missing = planImport(rows.slice(0, 1), first.questions, first.groups, NOW, newId);
+    expect(missing.groups).toEqual([]);
+    expect(missing.questions).toEqual([]);
+  });
+
   it("新增的題目通過 QuestionSchema，題組附上 source_id", () => {
     const r = validateCsv(csv(P5("P5-0001"), ...P7));
     const plan = planImport(r.rows, [], [], NOW, newId);

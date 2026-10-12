@@ -110,7 +110,7 @@ function PreviewCard({
 
       {[...v.warnings, ...(plan?.notices ?? [])].length > 0 && (
         <>
-          <h3 className="sub-title">提醒（不影響匯入）</h3>
+          <h3 className="sub-title">提醒與略過項目</h3>
           <ul className="issue-list">
             {[...v.warnings, ...(plan?.notices ?? [])].map((w, i) => (
               <li key={i}>
@@ -129,7 +129,7 @@ function PreviewCard({
         <button type="button" className="btn" onClick={onCancel} disabled={busy}>
           取消
         </button>
-        {nothing && !hasErrors && <span className="field-hint">題庫已是最新，沒有需要寫入的內容。</span>}
+        {nothing && !hasErrors && <span className="field-hint">沒有可套用的變更；若有略過提醒，請先修正後重新載入。</span>}
       </div>
     </section>
   );

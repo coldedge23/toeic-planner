@@ -15,7 +15,6 @@ import {
   TIMEZONE,
   type MistakeItem,
   type Part,
-  type Question,
   type Settings,
   type SettingsInput,
 } from "@/domain/schema";
@@ -23,6 +22,9 @@ import { nowIso } from "@/domain/dates";
 import { gradeSession, pauseSession, resumeSession } from "@/domain/exam-engine";
 import { applyAttempts, clearItems, restoreItem } from "@/domain/mistake-policy";
 import { planImport } from "@/domain/import-validator";
+import { numberPart6Questions } from "@/domain/blank-numbers";
+import { validateBackup } from "@/domain/backup-integrity";
+import { sessionMatchesTask } from "@/domain/task-practice";
 import { demoGroups, demoQuestions } from "@/fixtures/demo-bank";
 import type { BankStats, MistakeEntry, Repositories } from "../Repository";
 import type { ToeicDB } from "./db";
@@ -90,6 +92,21 @@ export function createDexieRepositories(db: ToeicDB): Repositories {
     },
 
     plans: {
+      async getTask(taskId) {
+        return (await db.study_tasks.get(taskId)) ?? null;
+      },
+      async completeFromSession(sessionId) {
+        await db.transaction("rw", db.sessions, db.study_tasks, db.study_plans, async () => {
+          const session = await db.sessions.get(sessionId);
+          if (!session || session.status !== "submitted" || !session.study_task_id) throw new Error("這場測驗尚未交卷或沒有關聯任務");
+          const task = await db.study_tasks.get(session.study_task_id);
+          if (!task || (await db.study_plans.get(task.plan_id))?.status !== "active") throw new Error("任務已重新排程，請回今日頁確認目前任務");
+          if (!sessionMatchesTask(session, task)) throw new Error("測驗單元與任務不一致，請回今日頁確認");
+          if (task.completed_at !== null) return;
+          const now = nowIso();
+          await db.study_tasks.update(task.id, { completed_at: now, updated_at: now });
+        });
+      },
       async getActivePlan() {
         return (await db.study_plans.where("status").equals("active").first()) ?? null;
       },
@@ -173,8 +190,12 @@ export function createDexieRepositories(db: ToeicDB): Repositories {
       },
       async seedDemo() {
         await db.transaction("rw", db.content_groups, db.questions, async () => {
-          await db.content_groups.bulkPut(demoGroups);
-          await db.questions.bulkPut(demoQuestions);
+          const groups = await db.content_groups.bulkGet(demoGroups.map((g) => g.id));
+          const questions = await db.questions.toArray();
+          const ids = new Set(questions.map((q) => q.id));
+          const sources = new Set(questions.map((q) => q.source_id));
+          await db.content_groups.bulkAdd(demoGroups.filter((_, i) => !groups[i]));
+          await db.questions.bulkAdd(demoQuestions.filter((q) => !ids.has(q.id) && !sources.has(q.source_id)));
         });
       },
       async stats() {
@@ -184,11 +205,8 @@ export function createDexieRepositories(db: ToeicDB): Repositories {
         return { total: approved.length, byPart };
       },
       async listApproved(parts?: readonly Part[]) {
-        if (!parts) return db.questions.where("status").equals("approved").toArray();
-        return db.questions
-          .where("[status+part]")
-          .anyOf(parts.map((p) => ["approved", p]))
-          .toArray();
+        const all = await db.questions.toArray();
+        return numberPart6Questions(all.filter((q) => q.status === "approved" && (!parts || parts.includes(q.part))), all);
       },
       async getGroups(ids) {
         const groups = await db.content_groups.bulkGet([...ids]);
@@ -199,7 +217,13 @@ export function createDexieRepositories(db: ToeicDB): Repositories {
     sessions: {
       async create(session) {
         const valid = SessionSchema.parse(session);
-        await db.transaction("rw", db.sessions, async () => {
+        await db.transaction("rw", db.sessions, db.study_tasks, db.study_plans, async () => {
+          if (valid.study_task_id) {
+            const task = await db.study_tasks.get(valid.study_task_id);
+            if (!task || (await db.study_plans.get(task.plan_id))?.status !== "active") throw new Error("任務已重新排程，請回今日頁重新開始");
+            if (task.completed_at !== null) throw new Error("這項任務已完成，可從模擬考開始自由練習");
+            if (!sessionMatchesTask(valid, task)) throw new Error("練習單元與任務不一致");
+          }
           if ((await db.sessions.where("status").equals("in_progress").count()) > 0) {
             throw new Error("還有一場測驗沒有交卷，請先完成或交卷");
           }
@@ -321,8 +345,9 @@ export function createDexieRepositories(db: ToeicDB): Repositories {
       },
       async activeQuestions() {
         const items = await db.mistake_items.where("state").equals("active").toArray();
-        const questions = await db.questions.bulkGet(items.map((i) => i.question_id));
-        return questions.filter((q): q is Question => q !== undefined && q.status === "approved");
+        const ids = new Set(items.map((i) => i.question_id));
+        const all = await db.questions.toArray();
+        return numberPart6Questions(all.filter((q) => ids.has(q.id) && q.status === "approved"), all);
       },
       async clearAll(now) {
         const iso = now.toISOString();
@@ -355,7 +380,7 @@ export function createDexieRepositories(db: ToeicDB): Repositories {
 
     backups: {
       async exportAll() {
-        return BackupSchema.parse({
+        return db.transaction("r", db.tables, async () => BackupSchema.parse({
           schema_version: SCHEMA_VERSION,
           exported_at: nowIso(),
           media_binaries_included: false,
@@ -371,10 +396,10 @@ export function createDexieRepositories(db: ToeicDB): Repositories {
           mistake_items: await db.mistake_items.toArray(),
           import_batches: await db.import_batches.toArray(),
           generation_jobs: await db.generation_jobs.toArray(),
-        });
+        }));
       },
       async importAll(backup) {
-        const valid = BackupSchema.parse(backup);
+        const valid = validateBackup(backup);
         const tables = [
           db.settings,
           db.study_plans,

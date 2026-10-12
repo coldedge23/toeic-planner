@@ -25,9 +25,10 @@ function counts(b: Backup) {
   ] as const;
 }
 
-async function downloadBackup() {
+async function downloadBackup(beforeRestore = false) {
   const backup = await repos.backups.exportAll();
-  downloadText(JSON.stringify(backup, null, 2), backupFileName(todayInTaipei()), "application/json");
+  const name = beforeRestore ? backupFileName(todayInTaipei()).replace(".json", "_還原前.json") : backupFileName(todayInTaipei());
+  downloadText(JSON.stringify(backup, null, 2), name, "application/json");
 }
 
 export function BackupCard({ onRestored }: { onRestored?: () => void | Promise<void> }) {
@@ -66,15 +67,20 @@ export function BackupCard({ onRestored }: { onRestored?: () => void | Promise<v
     if (!preview) return;
     setBusy(true);
     try {
+      await downloadBackup(true);
       await repos.backups.importAll(preview.backup);
       setPreview(null);
-      setMessage({ kind: "ok", text: "已還原備份" });
-      await onRestored?.();
+      setMessage({ kind: "ok", text: "已還原備份；還原前資料已另行匯出，請確認下載檔已保存" });
     } catch (err) {
       console.error(err);
       setMessage({ kind: "err", text: "還原失敗，目前資料沒有變更" });
+      return;
     } finally {
       setBusy(false);
+    }
+    // 畫面刷新失敗不代表資料交易失敗，避免誤報「目前資料沒有變更」。
+    if (onRestored) {
+      try { await onRestored(); } catch (err) { console.error("還原後畫面更新失敗", err); }
     }
   };
 
@@ -85,10 +91,10 @@ export function BackupCard({ onRestored }: { onRestored?: () => void | Promise<v
         學習紀錄只存在這個瀏覽器。換裝置或清除瀏覽器資料前，請先匯出 JSON 備份。備份不含音訊與圖片檔。
       </p>
       <div className="actions" style={{ marginTop: 0 }}>
-        <button type="button" className="btn btn-primary" onClick={() => void onExport()}>
+        <button type="button" className="btn btn-primary" disabled={busy} onClick={() => void onExport()}>
           匯出備份
         </button>
-        <button type="button" className="btn" onClick={() => fileRef.current?.click()}>
+        <button type="button" className="btn" disabled={busy} onClick={() => fileRef.current?.click()}>
           選擇備份檔還原…
         </button>
         <input
@@ -123,7 +129,7 @@ export function BackupCard({ onRestored }: { onRestored?: () => void | Promise<v
             </tbody>
           </table>
           <p className="notice notice-warn" style={{ marginTop: 12 }}>
-            還原會<strong>取代</strong>這個瀏覽器中目前的所有資料。建議先按「匯出備份」保存目前資料。
+            還原會<strong>取代</strong>這個瀏覽器中目前的所有資料。確認時會先下載「還原前」備份，請保留該檔案。
           </p>
           <label className="inline-check" style={{ marginTop: 8 }}>
             <input type="checkbox" checked={acknowledged} onChange={(e) => setAcknowledged(e.target.checked)} />

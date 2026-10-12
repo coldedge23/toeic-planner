@@ -49,5 +49,12 @@ export class ToeicDB extends Dexie {
     this.version(2).stores({
       attempts: "id, session_id, question_id, &[session_id+question_id]",
     });
+    this.version(3).stores({
+      sessions: "id, status, started_at, &idempotency_key, study_task_id",
+    }).upgrade(async (tx) => {
+      await tx.table("sessions").toCollection().modify((session) => {
+        session.study_task_id = null;
+      });
+    });
   }
 }

@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 /** 備份與資料遷移使用的 schema 版本；結構有破壞性變更時遞增，並在 backup-migrations 補遷移。 */
-export const SCHEMA_VERSION = 2;
+export const SCHEMA_VERSION = 3;
 
 export const TIMEZONE = "Asia/Taipei" as const;
 
@@ -193,6 +193,7 @@ export const SessionModeSchema = z.enum(["practice", "full"]);
 export const SessionSourceSchema = z.enum(["bank", "mistakes"]);
 
 export const SessionSchema = BaseRecordSchema.extend({
+  study_task_id: z.uuid().nullable(),
   mode: SessionModeSchema,
   source: SessionSourceSchema,
   parts: z.array(PartSchema).min(1),

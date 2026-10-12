@@ -94,17 +94,10 @@ export function TodayPage() {
           <>
             <ul className="task-list">
               {todays.map((t) => (
-                <TaskItem key={t.id} task={t} />
+                <TaskItem key={t.id} task={t} practice />
               ))}
             </ul>
-            {todays.some((t) => t.part === null) && (
-              <div className="actions">
-                <Link className="btn btn-primary" to="/mock">
-                  前往模擬考
-                </Link>
-                <span className="field-hint">考完後回來勾選完成。</span>
-              </div>
-            )}
+            <p className="field-hint">從任務開始練習，交卷後可確認是否完成；也可直接勾選已完成的學習任務。</p>
           </>
         )}
       </section>
@@ -115,7 +108,7 @@ export function TodayPage() {
           {suggestion && <p className="notice notice-warn">{suggestion}</p>}
           <ul className="task-list" style={{ marginTop: 12 }}>
             {[...stats.overdue].sort((a, b) => a.date.localeCompare(b.date) || (a.part ?? 0) - (b.part ?? 0)).map((t) => (
-              <TaskItem key={t.id} task={t} showDate />
+              <TaskItem key={t.id} task={t} showDate practice />
             ))}
           </ul>
         </section>

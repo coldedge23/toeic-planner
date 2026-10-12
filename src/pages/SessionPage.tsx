@@ -18,7 +18,7 @@ export function SessionPage() {
   const navigate = useNavigate();
   const data = useLiveQuery(async () => {
     const session = await repos.sessions.get(id);
-    return session ? { session, answers: await repos.sessions.getAnswers(id) } : null;
+    return session ? { session, answers: await repos.sessions.getAnswers(id), task: session.study_task_id ? await repos.plans.getTask(session.study_task_id) : null } : null;
   }, [id]);
 
   const [now, setNow] = useState(() => new Date());
@@ -172,6 +172,7 @@ export function SessionPage() {
 
   return (
     <div className="session">
+      {data.task && <p className="notice">關聯任務：{data.task.title}。交卷後可確認是否完成。</p>}
       <div className="session-bar" role="region" aria-label="作答狀態">
         <span className="num">
           已答 <strong>{answeredCount}</strong>/{total}

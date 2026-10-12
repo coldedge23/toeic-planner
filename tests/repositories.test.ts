@@ -51,6 +51,14 @@ describe("SettingsRepository", () => {
 });
 
 describe("BankRepository", () => {
+  it("再次初始化不會覆蓋改版、下架題目與文章", async () => {
+    await repos.bank.seedDemo();
+    await db.questions.update(demoQuestions[0].id, { status: "rejected", version: 2, stem: "Edited" });
+    await db.content_groups.update(demoGroups[0].id, { passages: [{ body: "Edited passage" }] });
+    await repos.bank.seedDemo();
+    expect(await db.questions.get(demoQuestions[0].id)).toMatchObject({ status: "rejected", version: 2, stem: "Edited" });
+    expect((await db.content_groups.get(demoGroups[0].id))?.passages).toEqual([{ body: "Edited passage" }]);
+  });
   it("seedDemo 重複呼叫不會重複新增", async () => {
     await repos.bank.seedDemo();
     await repos.bank.seedDemo();
