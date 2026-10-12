@@ -12,6 +12,7 @@ import {
   remainingMs,
 } from "@/domain/exam-engine";
 import { PART_LABELS, type OptionKey } from "@/domain/schema";
+import { VocabularyCapture } from "@/components/VocabularyCapture";
 
 export function SessionPage() {
   const { id = "" } = useParams();
@@ -143,10 +144,11 @@ export function SessionPage() {
   };
 
   const questions = page.map((i, posInGroup) => {
-    const { question } = session.question_snapshot[i];
+    const { question, group } = session.question_snapshot[i];
     const current = selected.get(question.id) ?? null;
     return (
-      <fieldset key={question.id} className="question">
+      <VocabularyCapture key={question.id} question={question} group={group}>
+      <fieldset className="question">
         <legend className="question-stem">
           <span className="q-no num">{i + 1}.</span>
           {questionHeading(question, posInGroup)}
@@ -166,6 +168,7 @@ export function SessionPage() {
           ))}
         </div>
       </fieldset>
+      </VocabularyCapture>
     );
   });
   const lastPage = pageIndex === pages.length - 1;
@@ -250,7 +253,7 @@ export function SessionPage() {
               關閉
             </button>
           </div>
-          <Passage group={firstItem.group} />
+          <Passage group={firstItem.group} question={firstItem.question} />
         </Modal>
       )}
 
@@ -279,7 +282,7 @@ export function SessionPage() {
               // 桌機：左邊文章（獨立捲動）、右邊題目；較窄的畫面改為上下排列，另可從底部抽屜叫出文章
               <div className="split" key={firstItem.group.id}>
                 <div className="split-passage" role="region" aria-label="文章" tabIndex={0}>
-                  <Passage group={firstItem.group} />
+                  <Passage group={firstItem.group} question={firstItem.question} />
                 </div>
                 <div className="split-questions">{questions}</div>
               </div>

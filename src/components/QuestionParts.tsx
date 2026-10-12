@@ -1,8 +1,9 @@
 import type { ContentGroup, Question } from "@/domain/schema";
+import { VocabularyCapture } from "./VocabularyCapture";
 
 /** activeBlank：要特別標出的空格編號（錯題本用來指出是哪一格） */
-export function Passage({ group, activeBlank }: { group: ContentGroup; activeBlank?: number }) {
-  return (
+export function Passage({ group, activeBlank, question }: { group: ContentGroup; activeBlank?: number; question?: Question }) {
+  const content = (
     <div className="passages">
       {group.passages.map((p, i) => (
         <article key={i} className="passage" lang="en">
@@ -12,6 +13,7 @@ export function Passage({ group, activeBlank }: { group: ContentGroup; activeBla
       ))}
     </div>
   );
+  return question ? <VocabularyCapture question={question} group={group}>{content}</VocabularyCapture> : content;
 }
 
 /** 把文章裡的空格 [1]、[2]… 標成方框，方便和題目對照（文字仍保留 [n]，螢幕報讀照常唸出） */

@@ -19,11 +19,13 @@ import {
 import { PART_LABELS, READING_PARTS } from "@/domain/schema";
 import { CheckIcon, CrossIcon } from "@/components/ui";
 import { TaskCompletionCard } from "@/components/TaskCompletionCard";
+import { VocabularyCapture } from "@/components/VocabularyCapture";
 
 
 function ReviewItem({ item, total, posInGroup }: { item: GradedItem; total: number; posInGroup: number }) {
   const { question, selected, isCorrect } = item;
   return (
+    <VocabularyCapture question={question} group={item.group}>
     <article className={`review-item ${isCorrect ? "is-correct" : "is-wrong"}`}>
       <header className="review-head">
         <span className="num">
@@ -69,6 +71,7 @@ function ReviewItem({ item, total, posInGroup }: { item: GradedItem; total: numb
         <p>{question.explanation_zh}</p>
       </details>
     </article>
+    </VocabularyCapture>
   );
 }
 
@@ -228,7 +231,7 @@ export function ResultPage() {
               {newGroup && (
                 <details className="review-passage">
                   <summary>查看文章：{item.group!.passages[0]?.title ?? "題組文章"}</summary>
-                  <Passage group={item.group!} />
+                  <Passage group={item.group!} question={item.question} />
                 </details>
               )}
               <ReviewItem item={item} total={result.total} posInGroup={posInGroup} />

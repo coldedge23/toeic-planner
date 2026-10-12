@@ -22,6 +22,8 @@ function counts(b: Backup) {
     ["測驗", b.sessions.length],
     ["作答紀錄", b.attempts.length],
     ["錯題", b.mistake_items.length],
+    ["單字", b.vocabulary_words.length],
+    ["單字複習", b.vocabulary_reviews.length],
   ] as const;
 }
 

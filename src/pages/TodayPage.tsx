@@ -3,14 +3,16 @@ import { PageHeader, StatCard } from "@/components/ui";
 import { TaskItem, groupTasksByDate } from "@/components/TaskList";
 import { useDaysToExam } from "@/hooks/useSettings";
 import { useActivePlan } from "@/hooks/usePlan";
-import { formatDateLabel, todayInTaipei } from "@/domain/dates";
+import { formatDateLabel } from "@/domain/dates";
+import { useTaipeiToday } from "@/hooks/useTaipeiToday";
 import { PHASE_LABELS } from "@/domain/planner";
 import { catchUpSuggestion, computeTodayStats } from "@/domain/progress";
+import { DailyVocabularyCard } from "@/components/DailyVocabularyCard";
 
 export function TodayPage() {
   const daysToExam = useDaysToExam();
   const active = useActivePlan();
-  const today = todayInTaipei();
+  const today = useTaipeiToday();
 
   const header = <PageHeader title="今日" subtitle={`${formatDateLabel(today)}｜今天要完成的任務與進度`} />;
 
@@ -42,6 +44,7 @@ export function TodayPage() {
           <StatCard label="落後天數" value="—" note="尚未建立計畫" />
           <StatCard label="連續達標" value="—" note="尚未建立計畫" />
         </div>
+        <DailyVocabularyCard />
         <section className="card">
           <h2>今日任務</h2>
           <p className="notice">
@@ -80,6 +83,7 @@ export function TodayPage() {
         <StatCard label="連續達標" value={stats.streak} unit="天" note="休息日不中斷" />
       </div>
 
+      <DailyVocabularyCard />
       <section className="card">
         <h2>
           今日任務

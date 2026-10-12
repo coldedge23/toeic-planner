@@ -1,5 +1,7 @@
 import { BackupSchema, SCHEMA_VERSION, type Backup } from "./schema";
 import { sessionMatchesTask } from "./task-practice";
+import { normalizeTerm } from "./vocabulary";
+import { toTaipeiDate } from "./dates";
 
 /** 格式與跨表關聯均通過後才允許還原；歷史題目以測驗快照為準。 */
 export function validateBackup(input: unknown): Backup {
@@ -9,6 +11,22 @@ export function validateBackup(input: unknown): Backup {
     if (new Set(values).size !== values.length) fail(`${label} 重複`);
   };
   if (b.schema_version !== SCHEMA_VERSION) fail("備份版本尚未轉換");
+  unique(b.vocabulary_words.map((w) => w.normalized_term), "單字");
+  unique(b.vocabulary_reviews.map((r) => `${r.word_id}/${r.date}`), "同日單字複習");
+  if (b.vocabulary_settings.length > 1) fail("單字每日設定超過一筆");
+  const words = new Map(b.vocabulary_words.map((w) => [w.id, w]));
+  for (const w of words.values()) {
+    if (w.normalized_term !== normalizeTerm(w.term)) fail(`單字 ${w.term} 的識別文字不符`);
+    if (w.source?.question.group_id && (w.source.group?.id !== w.source.question.group_id || w.source.group.part !== w.source.question.part)) fail(`單字 ${w.term} 的來源文章不完整`);
+    const records = b.vocabulary_reviews.filter((r) => r.word_id === w.id);
+    if (w.review_count !== records.length || (w.state === "new" && records.length > 0) || (w.state === "learning" && records.length === 0)) fail(`單字 ${w.term} 的複習次數或狀態不符`);
+    const last = [...records].sort((a, b) => b.reviewed_at.localeCompare(a.reviewed_at))[0];
+    if (w.state === "new" && (w.interval_days !== 0 || w.last_review_at !== null)) fail(`新單字 ${w.term} 的排程不符`);
+    if (last && (w.last_review_at !== last.reviewed_at || w.due_date !== last.next_due_date || w.interval_days !== last.interval_days)) fail(`單字 ${w.term} 的最新複習排程不符`);
+  }
+  for (const r of b.vocabulary_reviews) {
+    if (!words.has(r.word_id) || r.date !== toTaipeiDate(new Date(r.reviewed_at))) fail(`單字複習 ${r.id} 的來源或台北日期不符`);
+  }
   for (const [name, rows] of Object.entries(b)) {
     if (Array.isArray(rows)) unique(rows.map((r: { id: string }) => r.id), `${name} 的 id`);
   }

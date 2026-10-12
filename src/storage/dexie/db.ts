@@ -12,6 +12,7 @@ import type {
   Settings,
   StudyPlan,
   StudyTask,
+  VocabularyWord, VocabularyReview, VocabularySettings,
 } from "@/domain/schema";
 
 export class ToeicDB extends Dexie {
@@ -27,6 +28,9 @@ export class ToeicDB extends Dexie {
   mistake_items!: EntityTable<MistakeItem, "id">;
   import_batches!: EntityTable<ImportBatch, "id">;
   generation_jobs!: EntityTable<GenerationJob, "id">;
+  vocabulary_words!: EntityTable<VocabularyWord, "id">;
+  vocabulary_reviews!: EntityTable<VocabularyReview, "id">;
+  vocabulary_settings!: EntityTable<VocabularySettings, "id">;
 
   constructor(name = "toeic-planner") {
     super(name);
@@ -55,6 +59,13 @@ export class ToeicDB extends Dexie {
       await tx.table("sessions").toCollection().modify((session) => {
         session.study_task_id = null;
       });
+    });
+    this.version(4).stores({
+      vocabulary_words: "id, &normalized_term, state, due_date",
+      vocabulary_reviews: "id, word_id, date",
+      vocabulary_settings: "id",
+    }).upgrade(async () => {
+      // 新增空資料表；舊學習資料與v3的任務關聯完全保留，不自動新增單字。
     });
   }
 }

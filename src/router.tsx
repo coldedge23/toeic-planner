@@ -15,6 +15,7 @@ export const router = createBrowserRouter(
         { path: "mock", lazy: () => import("./pages/MockPage").then((m) => ({ Component: m.MockPage })) },
         { path: "mistakes", lazy: () => import("./pages/MistakesPage").then((m) => ({ Component: m.MistakesPage })) },
         { path: "bank", lazy: () => import("./pages/BankPage").then((m) => ({ Component: m.BankPage })) },
+        { path: "vocabulary", lazy: () => import("./pages/VocabularyPage").then((m) => ({ Component: m.VocabularyPage })) },
         {
           path: "sessions/:id",
           lazy: () => import("./pages/SessionPage").then((m) => ({ Component: m.SessionPage })),

@@ -5,4 +5,5 @@ export const NAV_ITEMS = [
   { path: "/mock", label: "模擬考" },
   { path: "/mistakes", label: "錯題本" },
   { path: "/bank", label: "題庫" },
+  { path: "/vocabulary", label: "單字本" },
 ] as const;

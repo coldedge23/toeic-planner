@@ -28,6 +28,7 @@ import { sessionMatchesTask } from "@/domain/task-practice";
 import { demoGroups, demoQuestions } from "@/fixtures/demo-bank";
 import type { BankStats, MistakeEntry, Repositories } from "../Repository";
 import type { ToeicDB } from "./db";
+import { createVocabularyRepository } from "./VocabularyRepository";
 
 export function createDexieRepositories(db: ToeicDB): Repositories {
   const withQuestions = async (items: MistakeItem[]): Promise<MistakeEntry[]> => {
@@ -69,6 +70,7 @@ export function createDexieRepositories(db: ToeicDB): Repositories {
   };
 
   return {
+    vocabulary: createVocabularyRepository(db),
     settings: {
       async get() {
         return (await db.settings.toCollection().first()) ?? null;
@@ -396,6 +398,9 @@ export function createDexieRepositories(db: ToeicDB): Repositories {
           mistake_items: await db.mistake_items.toArray(),
           import_batches: await db.import_batches.toArray(),
           generation_jobs: await db.generation_jobs.toArray(),
+          vocabulary_words: await db.vocabulary_words.toArray(),
+          vocabulary_reviews: await db.vocabulary_reviews.toArray(),
+          vocabulary_settings: await db.vocabulary_settings.toArray(),
         }));
       },
       async importAll(backup) {
@@ -413,6 +418,7 @@ export function createDexieRepositories(db: ToeicDB): Repositories {
           db.mistake_items,
           db.import_batches,
           db.generation_jobs,
+          db.vocabulary_words, db.vocabulary_reviews, db.vocabulary_settings,
         ];
         await db.transaction("rw", tables, async () => {
           for (const t of tables) await t.clear();
@@ -428,6 +434,9 @@ export function createDexieRepositories(db: ToeicDB): Repositories {
           await db.mistake_items.bulkAdd(valid.mistake_items);
           await db.import_batches.bulkAdd(valid.import_batches);
           await db.generation_jobs.bulkAdd(valid.generation_jobs);
+          await db.vocabulary_words.bulkAdd(valid.vocabulary_words);
+          await db.vocabulary_reviews.bulkAdd(valid.vocabulary_reviews);
+          await db.vocabulary_settings.bulkAdd(valid.vocabulary_settings);
         });
       },
     },

@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 /** 備份與資料遷移使用的 schema 版本；結構有破壞性變更時遞增，並在 backup-migrations 補遷移。 */
-export const SCHEMA_VERSION = 3;
+export const SCHEMA_VERSION = 4;
 
 export const TIMEZONE = "Asia/Taipei" as const;
 
@@ -268,6 +268,38 @@ export const GenerationJobSchema = BaseRecordSchema.extend({
 });
 export type GenerationJob = z.infer<typeof GenerationJobSchema>;
 
+// ---------- 單字 ----------
+export const VocabularySourceSchema = z.object({ question: QuestionSchema, group: ContentGroupSchema.nullable() });
+export const VocabularyInputSchema = z.object({
+  term: z.string().trim().min(1, "請填寫英文單字或片語").max(120, "英文單字或片語最多 120 字元").refine((s) => /[a-z]/i.test(s), "請填寫英文單字或片語"),
+  meaning_zh: z.string().trim().min(1, "請填寫並確認中文意思").max(1000, "中文意思最多 1000 字元"),
+  part_of_speech: z.string().trim().max(80, "詞性最多 80 字元"),
+  example: z.string().trim().max(2000, "例句最多 2000 字元"),
+  source: VocabularySourceSchema.nullable(),
+});
+export type VocabularyInput = z.infer<typeof VocabularyInputSchema>;
+export const VocabularyWordSchema = BaseRecordSchema.extend(VocabularyInputSchema.shape).extend({
+  normalized_term: z.string().min(1),
+  state: z.enum(["new", "learning"]),
+  due_date: isoDate,
+  interval_days: z.number().int().min(0).max(60),
+  review_count: z.number().int().nonnegative(),
+  last_review_at: isoDateTime.nullable(),
+});
+export type VocabularyWord = z.infer<typeof VocabularyWordSchema>;
+export const VocabularyRatingSchema = z.enum(["again", "familiar", "known"]);
+export type VocabularyRating = z.infer<typeof VocabularyRatingSchema>;
+export const VocabularyReviewSchema = BaseRecordSchema.extend({
+  word_id: z.uuid(), rating: VocabularyRatingSchema, reviewed_at: isoDateTime, date: isoDate,
+  was_new: z.boolean(), next_due_date: isoDate, interval_days: z.number().int().min(1).max(60),
+});
+export type VocabularyReview = z.infer<typeof VocabularyReviewSchema>;
+export const VocabularySettingsSchema = z.object({
+  id: z.literal("daily"), updated_at: isoDateTime,
+  review_limit: z.number().int().min(1).max(100), new_limit: z.number().int().min(0).max(30),
+});
+export type VocabularySettings = z.infer<typeof VocabularySettingsSchema>;
+
 // ---------- 備份 ----------
 
 export const BackupSchema = z.object({
@@ -287,5 +319,8 @@ export const BackupSchema = z.object({
   mistake_items: z.array(MistakeItemSchema),
   import_batches: z.array(ImportBatchSchema),
   generation_jobs: z.array(GenerationJobSchema),
+  vocabulary_words: z.array(VocabularyWordSchema),
+  vocabulary_reviews: z.array(VocabularyReviewSchema),
+  vocabulary_settings: z.array(VocabularySettingsSchema),
 });
 export type Backup = z.infer<typeof BackupSchema>;

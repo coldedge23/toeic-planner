@@ -13,6 +13,7 @@ import type {
   SettingsInput,
   StudyPlan,
   StudyTask,
+  VocabularyInput, VocabularyWord, VocabularyReview, VocabularySettings, VocabularyRating,
 } from "@/domain/schema";
 import type { CsvRow, ImportPlan } from "@/domain/import-validator";
 
@@ -132,10 +133,25 @@ export interface BackupsRepository {
 }
 
 export interface Repositories {
+  vocabulary: VocabularyRepository;
   settings: SettingsRepository;
   plans: PlansRepository;
   bank: BankRepository;
   sessions: SessionsRepository;
   mistakes: MistakesRepository;
   backups: BackupsRepository;
+}
+
+export interface VocabularyRepository {
+  list(): Promise<VocabularyWord[]>;
+  get(wordId: string): Promise<VocabularyWord | null>;
+  findByTerm(term: string): Promise<VocabularyWord | null>;
+  add(input: VocabularyInput): Promise<VocabularyWord>;
+  /** 全批驗證後以單一交易新增；重複單字略過，既有釋義與複習進度不變。 */
+  importBatch(inputs: readonly VocabularyInput[]): Promise<{ added: number; skipped: number }>;
+  update(wordId: string, input: VocabularyInput, expectedUpdatedAt: string): Promise<void>;
+  settings(): Promise<VocabularySettings>;
+  saveSettings(limits: Pick<VocabularySettings, "review_limit" | "new_limit">): Promise<void>;
+  daily(today: string): Promise<{ queue: VocabularyWord[]; due: number; fresh: number; reviewedToday: number }>;
+  review(input: { wordId: string; rating: VocabularyRating; reviewId: string; expectedUpdatedAt: string; now: Date }): Promise<VocabularyReview>;
 }
