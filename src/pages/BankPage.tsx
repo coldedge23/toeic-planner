@@ -51,6 +51,8 @@ function PreviewCard({
   const hasErrors = v.errors.length > 0;
   const nothing =
     plan !== null && plan.summary.added + plan.summary.updated + plan.summary.unpublished === 0;
+  const skipped = [...v.warnings, ...(plan?.notices ?? [])].length > 0;
+  const latest = nothing && !hasErrors && !skipped && v.counts.draft === 0;
   return (
     <section className="card card-emphasis" aria-labelledby="import-preview-title">
       <h2 id="import-preview-title">匯入預覽</h2>
@@ -122,14 +124,27 @@ function PreviewCard({
         </>
       )}
 
+      {!hasErrors && (
+        <p id="import-status" className="notice" role="status">
+          {latest
+            ? "題庫已是最新，無須匯入。"
+            : nothing
+              ? skipped
+                ? "沒有可匯入的變更。請先查看上方略過原因，修正 Sheet 後重新載入。"
+                : "沒有新的已審核題目可匯入。"
+              : "有題庫變更可套用，請確認上方結果後按「確認匯入」。"}
+          {v.counts.draft > 0 && (
+            <> 另有 {v.counts.draft} 題草稿尚待審核，這次不會新增到題庫。請到 Google Sheet 的「AI 出題 → 重新審核既有草稿」複核；答案不一致的題目需人工檢查，完成後回到這裡重新載入。</>
+          )}
+        </p>
+      )}
       <div className="actions">
-        <button type="button" className="btn btn-primary" disabled={hasErrors || busy || nothing} onClick={onCommit}>
-          {busy ? "匯入中…" : "確認匯入"}
+        <button type="button" className="btn btn-primary" disabled={hasErrors || busy || nothing} aria-describedby={!hasErrors ? "import-status" : undefined} onClick={onCommit}>
+          {busy ? "匯入中…" : hasErrors ? "請先修正資料" : latest ? "題庫已是最新" : nothing ? "沒有可匯入的變更" : "確認匯入"}
         </button>
         <button type="button" className="btn" onClick={onCancel} disabled={busy}>
           取消
         </button>
-        {nothing && !hasErrors && <span className="field-hint">沒有可套用的變更；若有略過提醒，請先修正後重新載入。</span>}
       </div>
     </section>
   );

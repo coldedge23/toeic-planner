@@ -29,6 +29,7 @@ import { demoGroups, demoQuestions } from "@/fixtures/demo-bank";
 import type { BankStats, MistakeEntry, Repositories } from "../Repository";
 import type { ToeicDB } from "./db";
 import { createVocabularyRepository } from "./VocabularyRepository";
+import { createListeningRepository } from "./ListeningRepository";
 
 export function createDexieRepositories(db: ToeicDB): Repositories {
   const withQuestions = async (items: MistakeItem[]): Promise<MistakeEntry[]> => {
@@ -70,6 +71,7 @@ export function createDexieRepositories(db: ToeicDB): Repositories {
   };
 
   return {
+    listening: createListeningRepository(db),
     vocabulary: createVocabularyRepository(db),
     settings: {
       async get() {
@@ -401,6 +403,7 @@ export function createDexieRepositories(db: ToeicDB): Repositories {
           vocabulary_words: await db.vocabulary_words.toArray(),
           vocabulary_reviews: await db.vocabulary_reviews.toArray(),
           vocabulary_settings: await db.vocabulary_settings.toArray(),
+          listening_sessions: await db.listening_sessions.toArray(),
         }));
       },
       async importAll(backup) {
@@ -419,6 +422,7 @@ export function createDexieRepositories(db: ToeicDB): Repositories {
           db.import_batches,
           db.generation_jobs,
           db.vocabulary_words, db.vocabulary_reviews, db.vocabulary_settings,
+          db.listening_sessions,
         ];
         await db.transaction("rw", tables, async () => {
           for (const t of tables) await t.clear();
@@ -437,6 +441,7 @@ export function createDexieRepositories(db: ToeicDB): Repositories {
           await db.vocabulary_words.bulkAdd(valid.vocabulary_words);
           await db.vocabulary_reviews.bulkAdd(valid.vocabulary_reviews);
           await db.vocabulary_settings.bulkAdd(valid.vocabulary_settings);
+          await db.listening_sessions.bulkAdd(valid.listening_sessions);
         });
       },
     },

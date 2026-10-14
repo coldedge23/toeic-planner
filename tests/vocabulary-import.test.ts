@@ -2,7 +2,7 @@ import "fake-indexeddb/auto";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { ToeicDB } from "@/storage/dexie/db";
 import { createDexieRepositories } from "@/storage/dexie/DexieRepositories";
-import { VocabularyInputSchema, type VocabularyInput } from "@/domain/schema";
+import { SCHEMA_VERSION, VocabularyInputSchema, type VocabularyInput } from "@/domain/schema";
 import { parseVocabularyCsv, previewVocabularyImport, vocabularyTemplateCsv } from "@/domain/vocabulary-import";
 import { VOCABULARY_STARTER, VOCABULARY_STARTER_V1 } from "@/fixtures/vocabulary-starter";
 import { normalizeTerm } from "@/domain/vocabulary";
@@ -112,7 +112,7 @@ describe("單字入門包與安全批次匯入", () => {
     expect(await repos.vocabulary.importBatch(VOCABULARY_STARTER.topics.flatMap((t) => t.words))).toEqual({ added: 500, skipped: 0 });
     await repos.vocabulary.importBatch(parseVocabularyCsv(vocabularyTemplateCsv()).rows.map((r) => r.input));
     const backup = await repos.backups.exportAll();
-    expect(backup.schema_version).toBe(4);
+    expect(backup.schema_version).toBe(SCHEMA_VERSION);
     expect(parseBackup(JSON.stringify(backup)).ok).toBe(true);
     expect((await repos.vocabulary.daily(backup.vocabulary_words[0].due_date)).queue).toHaveLength(3);
     await repos.backups.importAll(backup);

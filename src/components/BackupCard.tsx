@@ -24,6 +24,7 @@ function counts(b: Backup) {
     ["錯題", b.mistake_items.length],
     ["單字", b.vocabulary_words.length],
     ["單字複習", b.vocabulary_reviews.length],
+    ["聽力練習", b.listening_sessions.length],
   ] as const;
 }
 

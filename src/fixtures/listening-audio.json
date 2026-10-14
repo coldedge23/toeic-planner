@@ -1,0 +1,431 @@
+{
+  "version": "part2-v1",
+  "voice": "Microsoft Zira Desktop (en-US)",
+  "files": [
+    {
+      "name": "L2-001.mp3",
+      "bytes": 120960,
+      "sha256": "2409f1b75244def374eb7f19e9a053a11771cbf64171f3cdf524158150a9f37b"
+    },
+    {
+      "name": "L2-002.mp3",
+      "bytes": 112032,
+      "sha256": "2735907fa72a703122854bb01381ff0a031909a80b353fca77f5d50f1c9c5bce"
+    },
+    {
+      "name": "L2-003.mp3",
+      "bytes": 121824,
+      "sha256": "820988a236e23ed633b78df41e1a2f0b069822f22b4cc179378de148c162b375"
+    },
+    {
+      "name": "L2-004.mp3",
+      "bytes": 115488,
+      "sha256": "efe3398003c0fecbc53c2045a0ef3b78ec61e9d9f58d848acaacebb1bdb422d7"
+    },
+    {
+      "name": "L2-005.mp3",
+      "bytes": 113184,
+      "sha256": "7e80672a72aa9ed0deaa739ce78e7eeee5f6f981d48ec29b45f330da4e55eaa1"
+    },
+    {
+      "name": "L2-006.mp3",
+      "bytes": 120096,
+      "sha256": "24b7c53a169991c42dd9e8195771ea09f639a90d00b77eb3d329e72926bafaaa"
+    },
+    {
+      "name": "L2-007.mp3",
+      "bytes": 115200,
+      "sha256": "e1d94884d07517b5e3cf3a6c960968943a70ba46a7011d9e8824fa183fc79ee5"
+    },
+    {
+      "name": "L2-008.mp3",
+      "bytes": 120096,
+      "sha256": "0aa428594680d8534e6cbf250f7b7293307a17f94126a87ba1ed418a65208b44"
+    },
+    {
+      "name": "L2-009.mp3",
+      "bytes": 113760,
+      "sha256": "869807741ee3f1720cd31dea1e14bccedc53fa194b5228246cc5d959b4044e3a"
+    },
+    {
+      "name": "L2-010.mp3",
+      "bytes": 131616,
+      "sha256": "6a7ccb07b43a6e6e8036f4852c4e2981c81272cedab7dc62c546ff0ea93a6cd3"
+    },
+    {
+      "name": "L2-011.mp3",
+      "bytes": 122976,
+      "sha256": "3e81744272161dd256062c9c74303a511c6cfba0095b9dddfa2822971eb2b4f8"
+    },
+    {
+      "name": "L2-012.mp3",
+      "bytes": 116064,
+      "sha256": "f43270a492005006204aa2550aac19deb3106354ad4436376eca14dacc4aece5"
+    },
+    {
+      "name": "L2-013.mp3",
+      "bytes": 121536,
+      "sha256": "57e43dd661b6e4c9d2fa0e1b1dd835e41d06aa387a0fbf118ceba1ffc36fec39"
+    },
+    {
+      "name": "L2-014.mp3",
+      "bytes": 132768,
+      "sha256": "7bf53897550ad6be02b284022887c9e83ddcf202795fb096e5a5943fbd46420d"
+    },
+    {
+      "name": "L2-015.mp3",
+      "bytes": 117216,
+      "sha256": "917a6c893e109cc7c470913e210f2b97ff137bdca6c35bef7e6f5d5ad64ada88"
+    },
+    {
+      "name": "L2-016.mp3",
+      "bytes": 131328,
+      "sha256": "e5be73d3375daf80da59a1f2f187ac97db9bf0a5739e214c4496d9de324a265d"
+    },
+    {
+      "name": "L2-017.mp3",
+      "bytes": 126432,
+      "sha256": "9ebc610bd547a8b4dfdbb58f91a356863b0b5f6a6a3644faa209607ab1adbf48"
+    },
+    {
+      "name": "L2-018.mp3",
+      "bytes": 137664,
+      "sha256": "e9bae6b06e4e8e6c95ab2c2bbf9deec66e5c231ff26383628b636b9c8dee65c6"
+    },
+    {
+      "name": "L2-019.mp3",
+      "bytes": 129600,
+      "sha256": "1f70657a00000b519a05fd4b60e54cb86158541a67f8cbd5acc52b6618345ae8"
+    },
+    {
+      "name": "L2-020.mp3",
+      "bytes": 122400,
+      "sha256": "aae3e82e045daf46d567c507d083d77b3e2c538b5f074374954ad642baeaaffc"
+    },
+    {
+      "name": "L2-021.mp3",
+      "bytes": 126720,
+      "sha256": "885ec4b82854ffbef6f5c49a713f967c60cb2f032613b9352e7533ecbbe58687"
+    },
+    {
+      "name": "L2-022.mp3",
+      "bytes": 132480,
+      "sha256": "9ca3f175c476de1c66c58c469db51ae3c9f6e5ae5274f32a8f21660505fba51c"
+    },
+    {
+      "name": "L2-023.mp3",
+      "bytes": 138816,
+      "sha256": "a94824ee2785e8b11baac6a3a229c00815984e51216b738ba1d9fac8b80ec685"
+    },
+    {
+      "name": "L2-024.mp3",
+      "bytes": 116064,
+      "sha256": "f88f8fd7b3b1179fcc7a365049ff320856f2610cf4a5da8dc1c9908a9bd4a7a7"
+    },
+    {
+      "name": "L2-025.mp3",
+      "bytes": 120096,
+      "sha256": "994ad04ba350f073f42db33f34ccf3443a95841958ac85d37114cbb5d606386e"
+    },
+    {
+      "name": "L2-026.mp3",
+      "bytes": 131616,
+      "sha256": "1e759df3a47cfda0e8358725ec9d10b2e59d3461fda7b22e634bb08a1abad196"
+    },
+    {
+      "name": "L2-027.mp3",
+      "bytes": 131040,
+      "sha256": "f6f438ca845583b2b5bf33f6c3dfb29ebfe6049d3acf96a6bc196e135b226a45"
+    },
+    {
+      "name": "L2-028.mp3",
+      "bytes": 118944,
+      "sha256": "7a2529383000a53f1a5ef0275323395a1d4a4d5db67b0151bb89268d2a71a714"
+    },
+    {
+      "name": "L2-029.mp3",
+      "bytes": 133344,
+      "sha256": "bdc4f2f21e25cd7780f6f9ca71a8e9bd72137a3e66a12daabe6fc8995fc23501"
+    },
+    {
+      "name": "L2-030.mp3",
+      "bytes": 126432,
+      "sha256": "e54a957bc8d127dafea86df10cab3dee224d8492e2c7e4f91c3516c49929594a"
+    },
+    {
+      "name": "continuous-5.mp3",
+      "bytes": 2297664,
+      "sha256": "7f63e961fc82355f44df379e8e7ae05e2c60e676ac4ddca419ae7edbf652da5e"
+    },
+    {
+      "name": "continuous-10.mp3",
+      "bytes": 4626144,
+      "sha256": "5175cb00c64e307dec13e69c23241a94abde43ff9b1c268b6c129a081a44f7de"
+    },
+    {
+      "name": "continuous-15.mp3",
+      "bytes": 7200576,
+      "sha256": "125ade44db65f7e7d0ed0caa7c66798954476f16eccc92dbc2ddd3bed4a3b236"
+    }
+  ],
+  "tracks": [
+    {
+      "id": "L2-001",
+      "start": 0.0,
+      "end": 32.928625,
+      "question_duration": 15.043625
+    },
+    {
+      "id": "L2-002",
+      "start": 32.928625,
+      "end": 64.146625,
+      "question_duration": 13.903
+    },
+    {
+      "id": "L2-003",
+      "start": 64.146625,
+      "end": 96.735125,
+      "question_duration": 15.1435
+    },
+    {
+      "id": "L2-004",
+      "start": 96.735125,
+      "end": 128.2525,
+      "question_duration": 14.337375
+    },
+    {
+      "id": "L2-005",
+      "start": 128.2525,
+      "end": 158.793625,
+      "question_duration": 14.051125
+    },
+    {
+      "id": "L2-006",
+      "start": 158.793625,
+      "end": 191.31575,
+      "question_duration": 14.932125
+    },
+    {
+      "id": "L2-007",
+      "start": 191.31575,
+      "end": 223.0215,
+      "question_duration": 14.32575
+    },
+    {
+      "id": "L2-008",
+      "start": 223.0215,
+      "end": 255.490875,
+      "question_duration": 14.914375
+    },
+    {
+      "id": "L2-009",
+      "start": 255.490875,
+      "end": 287.12575,
+      "question_duration": 14.144875
+    },
+    {
+      "id": "L2-010",
+      "start": 287.12575,
+      "end": 321.423125,
+      "question_duration": 16.362375
+    },
+    {
+      "id": "L2-011",
+      "start": 321.423125,
+      "end": 351.522,
+      "question_duration": 15.268875
+    },
+    {
+      "id": "L2-012",
+      "start": 351.522,
+      "end": 383.897625,
+      "question_duration": 14.405625
+    },
+    {
+      "id": "L2-013",
+      "start": 383.897625,
+      "end": 415.53675,
+      "question_duration": 15.099125
+    },
+    {
+      "id": "L2-014",
+      "start": 415.53675,
+      "end": 448.751125,
+      "question_duration": 16.504375
+    },
+    {
+      "id": "L2-015",
+      "start": 448.751125,
+      "end": 479.591,
+      "question_duration": 14.544875
+    },
+    {
+      "id": "L2-016",
+      "start": 479.591,
+      "end": 513.304,
+      "question_duration": 16.313
+    },
+    {
+      "id": "L2-017",
+      "start": 513.304,
+      "end": 543.93725,
+      "question_duration": 15.72325
+    },
+    {
+      "id": "L2-018",
+      "start": 543.93725,
+      "end": 578.178,
+      "question_duration": 17.11075
+    },
+    {
+      "id": "L2-019",
+      "start": 578.178,
+      "end": 611.1135,
+      "question_duration": 16.1005
+    },
+    {
+      "id": "L2-020",
+      "start": 611.1135,
+      "end": 642.808,
+      "question_duration": 15.2145
+    },
+    {
+      "id": "L2-021",
+      "start": 642.808,
+      "end": 674.04175,
+      "question_duration": 15.75875
+    },
+    {
+      "id": "L2-022",
+      "start": 674.04175,
+      "end": 705.695625,
+      "question_duration": 16.463875
+    },
+    {
+      "id": "L2-023",
+      "start": 705.695625,
+      "end": 737.8195,
+      "question_duration": 17.253875
+    },
+    {
+      "id": "L2-024",
+      "start": 737.8195,
+      "end": 768.654,
+      "question_duration": 14.4145
+    },
+    {
+      "id": "L2-025",
+      "start": 768.654,
+      "end": 801.733375,
+      "question_duration": 14.909375
+    },
+    {
+      "id": "L2-026",
+      "start": 801.733375,
+      "end": 834.07125,
+      "question_duration": 16.377875
+    },
+    {
+      "id": "L2-027",
+      "start": 834.07125,
+      "end": 867.870375,
+      "question_duration": 16.294125
+    },
+    {
+      "id": "L2-028",
+      "start": 867.870375,
+      "end": 899.971625,
+      "question_duration": 14.76625
+    },
+    {
+      "id": "L2-029",
+      "start": 899.971625,
+      "end": 934.263125,
+      "question_duration": 16.5765
+    },
+    {
+      "id": "L2-030",
+      "start": 934.263125,
+      "end": 967.9425,
+      "question_duration": 15.719375
+    }
+  ],
+  "playlists": [
+    {
+      "minutes": 5,
+      "name": "continuous-5.mp3",
+      "ids": [
+        "L2-001",
+        "L2-002",
+        "L2-003",
+        "L2-004",
+        "L2-005",
+        "L2-006",
+        "L2-007",
+        "L2-008",
+        "L2-009"
+      ],
+      "duration": 287.12575
+    },
+    {
+      "minutes": 10,
+      "name": "continuous-10.mp3",
+      "ids": [
+        "L2-001",
+        "L2-002",
+        "L2-003",
+        "L2-004",
+        "L2-005",
+        "L2-006",
+        "L2-007",
+        "L2-008",
+        "L2-009",
+        "L2-010",
+        "L2-011",
+        "L2-012",
+        "L2-013",
+        "L2-014",
+        "L2-015",
+        "L2-016",
+        "L2-017",
+        "L2-018"
+      ],
+      "duration": 578.178
+    },
+    {
+      "minutes": 15,
+      "name": "continuous-15.mp3",
+      "ids": [
+        "L2-001",
+        "L2-002",
+        "L2-003",
+        "L2-004",
+        "L2-005",
+        "L2-006",
+        "L2-007",
+        "L2-008",
+        "L2-009",
+        "L2-010",
+        "L2-011",
+        "L2-012",
+        "L2-013",
+        "L2-014",
+        "L2-015",
+        "L2-016",
+        "L2-017",
+        "L2-018",
+        "L2-019",
+        "L2-020",
+        "L2-021",
+        "L2-022",
+        "L2-023",
+        "L2-024",
+        "L2-025",
+        "L2-026",
+        "L2-027",
+        "L2-028"
+      ],
+      "duration": 899.971625
+    }
+  ]
+}

@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 /** 備份與資料遷移使用的 schema 版本；結構有破壞性變更時遞增，並在 backup-migrations 補遷移。 */
-export const SCHEMA_VERSION = 4;
+export const SCHEMA_VERSION = 5;
 
 export const TIMEZONE = "Asia/Taipei" as const;
 
@@ -300,6 +300,27 @@ export const VocabularySettingsSchema = z.object({
 });
 export type VocabularySettings = z.infer<typeof VocabularySettingsSchema>;
 
+// ---------- 獨立的 Part 2 聽力練習 ----------
+export const ListeningKeySchema = z.enum(["A", "B", "C"]);
+export const ListeningQuestionSchema = z.object({
+  id: z.string().regex(/^L2-\d{3}$/), version: z.number().int().positive(),
+  status: z.literal("approved"), prompt: z.string().min(1),
+  options: z.object({ A: z.string().min(1), B: z.string().min(1), C: z.string().min(1) }),
+  correct_key: ListeningKeySchema, explanation_zh: z.string().min(1),
+  explanation_en: z.string().min(1), tag: z.string().min(1),
+});
+export type ListeningQuestion = z.infer<typeof ListeningQuestionSchema>;
+export type ListeningKey = z.infer<typeof ListeningKeySchema>;
+export const ListeningSessionSchema = z.object({
+  id: z.uuid(), created_at: isoDateTime, updated_at: isoDateTime,
+  mode: z.enum(["answer", "listen"]), minutes: z.union([z.literal(5), z.literal(10), z.literal(15)]),
+  status: z.enum(["in_progress", "completed"]), revision: z.number().int().nonnegative(),
+  question_snapshot: z.array(ListeningQuestionSchema).min(1).max(30),
+  position: z.number().int().nonnegative(), audio_position: z.number().nonnegative(),
+  answers: z.array(z.object({ question_id: z.string(), selected: ListeningKeySchema, answered_at: isoDateTime })),
+});
+export type ListeningSession = z.infer<typeof ListeningSessionSchema>;
+
 // ---------- 備份 ----------
 
 export const BackupSchema = z.object({
@@ -322,5 +343,6 @@ export const BackupSchema = z.object({
   vocabulary_words: z.array(VocabularyWordSchema),
   vocabulary_reviews: z.array(VocabularyReviewSchema),
   vocabulary_settings: z.array(VocabularySettingsSchema),
+  listening_sessions: z.array(ListeningSessionSchema),
 });
 export type Backup = z.infer<typeof BackupSchema>;

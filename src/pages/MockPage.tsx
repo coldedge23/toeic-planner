@@ -18,6 +18,7 @@ import {
 import { PART_LABELS, READING_PARTS, type ReadingPart, type StudyTask } from "@/domain/schema";
 import { recommendTaskPractice } from "@/domain/task-practice";
 import { formatDateLabel } from "@/domain/dates";
+import { focusQuestions } from "@/domain/weakness";
 
 const SECONDS_OPTIONS: { value: number | null; label: string }[] = [
   { value: null, label: "不限時" },
@@ -54,10 +55,12 @@ function readInitial(params: URLSearchParams) {
 
 function StartForm({ task, recommendation }: { task?: StudyTask; recommendation?: ReturnType<typeof recommendTaskPractice> }) {
   const [params] = useSearchParams();
+  const focus = !task && params.get('focus') === '1';
+  const tag = focus ? params.get('tag')?.trim() || null : null;
   const initial = useMemo(() => task && recommendation ? {
     source: "bank" as const, parts: recommendation.parts, count: String(recommendation.count), seconds: recommendation.seconds,
   } : readInitial(params), [params, task, recommendation]);
-  const [source, setSource] = useState<"bank" | "mistakes">(initial.source);
+  const [source, setSource] = useState<"bank" | "mistakes">(focus ? "bank" : initial.source);
   const [parts, setParts] = useState<ReadingPart[]>(initial.parts);
   const [count, setCount] = useState(initial.count);
   const [seconds, setSeconds] = useState<number | null>(initial.seconds);
@@ -67,8 +70,9 @@ function StartForm({ task, recommendation }: { task?: StudyTask; recommendation?
 
   const bank = useLiveQuery(async () => {
     const questions = source === "mistakes" ? await repos.mistakes.activeQuestions() : await repos.bank.listApproved();
-    return { questions, groups: await repos.bank.getGroups([...new Set(questions.flatMap((q) => q.group_id ?? []))]) };
-  }, [source]);
+    const filtered = focus ? focusQuestions(questions, initial.parts, tag) : questions;
+    return { questions: filtered, groups: await repos.bank.getGroups([...new Set(filtered.flatMap((q) => q.group_id ?? []))]) };
+  }, [source, focus, tag, initial.parts.join(',')]);
 
   const perPart = (p: ReadingPart) => bank?.questions.filter((q) => q.part === p).length ?? 0;
   const availability = bank ? checkAvailability(bank.questions, parts, source === "bank") : null;
@@ -101,7 +105,8 @@ function StartForm({ task, recommendation }: { task?: StudyTask; recommendation?
 
   return (
     <section className="card">
-      <h2>{task ? "任務練習" : "開始模擬考"}</h2>
+      <h2>{task ? "任務練習" : focus ? "針對性練習" : "開始模擬考"}</h2>
+      {focus && <p className="notice" role="status">練習目標：{initial.parts.map(p => `Part ${p}`).join('、')}{tag ? `／${tag}` : ''}。只抽目前已審核題目；Part 6／7 保留完整題組，會包含同篇其他考點。題數與每題秒數可調整。</p>}
       {task && recommendation && (
         <>
           <p className="card-desc">{formatDateLabel(task.date)}｜{task.title}｜預計 {task.minutes} 分鐘</p>
@@ -111,7 +116,7 @@ function StartForm({ task, recommendation }: { task?: StudyTask; recommendation?
       )}
       <form onSubmit={onSubmit} noValidate>
         <div className="form-grid">
-          <fieldset className="field fieldset" disabled={!!task}>
+          <fieldset className="field fieldset" disabled={!!task || focus}>
             <legend className="field-label">Part（可複選）</legend>
             <div className="toggle-row">
               {READING_PARTS.map((p) => (
@@ -163,7 +168,7 @@ function StartForm({ task, recommendation }: { task?: StudyTask; recommendation?
             <span className="field-hint">總時限 = 題數 × 每題秒數；時間到自動交卷，可暫停。</span>
           </label>
 
-          <fieldset className="field fieldset" disabled={!!task}>
+          <fieldset className="field fieldset" disabled={!!task || focus}>
             <legend className="field-label">來源與模式</legend>
             <label className="inline-check">
               <input
@@ -203,6 +208,7 @@ function StartForm({ task, recommendation }: { task?: StudyTask; recommendation?
             {busy ? "準備中…" : "開始"}
           </button>
           {task && <Link className="btn" to="/today">返回今日</Link>}
+          {focus && <Link className="btn" to="/weakness">返回弱點分析</Link>}
         </div>
       </form>
     </section>

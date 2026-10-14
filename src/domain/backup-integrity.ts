@@ -2,6 +2,7 @@ import { BackupSchema, SCHEMA_VERSION, type Backup } from "./schema";
 import { sessionMatchesTask } from "./task-practice";
 import { normalizeTerm } from "./vocabulary";
 import { toTaipeiDate } from "./dates";
+import { validateListeningSession } from "./listening";
 
 /** 格式與跨表關聯均通過後才允許還原；歷史題目以測驗快照為準。 */
 export function validateBackup(input: unknown): Backup {
@@ -11,6 +12,8 @@ export function validateBackup(input: unknown): Backup {
     if (new Set(values).size !== values.length) fail(`${label} 重複`);
   };
   if (b.schema_version !== SCHEMA_VERSION) fail("備份版本尚未轉換");
+  if (b.listening_sessions.filter(s => s.status === "in_progress").length > 1) fail("進行中的聽力練習超過一筆");
+  for (const s of b.listening_sessions) validateListeningSession(s);
   unique(b.vocabulary_words.map((w) => w.normalized_term), "單字");
   unique(b.vocabulary_reviews.map((r) => `${r.word_id}/${r.date}`), "同日單字複習");
   if (b.vocabulary_settings.length > 1) fail("單字每日設定超過一筆");

@@ -10,7 +10,7 @@
 - 純前端 SPA（Vite＋React＋TypeScript）。不要加入伺服器端程式或 Next.js。
 - 畫面只能透過 `src/storage/Repository.ts` 的介面存取資料，不要在元件裡直接呼叫 Dexie。
 - `src/domain/` 只放純函式與 schema，不可 import React、Dexie 或瀏覽器 API（`Intl` 除外）。
-- 目前只開放閱讀 Part 5–7（`ACTIVE_PARTS`）。聽力 Part 1–4 的型別保留，但不要做成可選項目。
+- 閱讀排程、題庫匯入與模擬考維持 Part 5–7（`ACTIVE_PARTS`）。2026-10-14 使用者同意新增獨立 Part 2 聽力頁；聽力使用自己的 Repository、三選項題型與紀錄，不混入閱讀排程／抽題。Part 1／3／4 尚未開放。
 - App 內不得出現 API 金鑰欄位或任何金鑰；AI 出題只在 Google Apps Script 進行。
 
 ## 資料規則

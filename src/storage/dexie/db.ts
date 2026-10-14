@@ -1,4 +1,5 @@
 import Dexie, { type EntityTable } from "dexie";
+import type { ListeningSession } from "@/domain/schema";
 import type {
   Answer,
   Attempt,
@@ -16,6 +17,7 @@ import type {
 } from "@/domain/schema";
 
 export class ToeicDB extends Dexie {
+  listening_sessions!: EntityTable<ListeningSession, "id">;
   settings!: EntityTable<Settings, "id">;
   study_plans!: EntityTable<StudyPlan, "id">;
   study_tasks!: EntityTable<StudyTask, "id">;
@@ -66,6 +68,11 @@ export class ToeicDB extends Dexie {
       vocabulary_settings: "id",
     }).upgrade(async () => {
       // 新增空資料表；舊學習資料與v3的任務關聯完全保留，不自動新增單字。
+    });
+    this.version(5).stores({
+      listening_sessions: "id, status, updated_at",
+    }).upgrade(async () => {
+      // 僅新增聽力資料表；保留 v1–v4 全部紀錄，不自動載入音訊或題目。
     });
   }
 }

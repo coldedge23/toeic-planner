@@ -16,6 +16,21 @@ import type {
   VocabularyInput, VocabularyWord, VocabularyReview, VocabularySettings, VocabularyRating,
 } from "@/domain/schema";
 import type { CsvRow, ImportPlan } from "@/domain/import-validator";
+import type { ListeningQuestion, ListeningSession, ListeningKey } from "@/domain/schema";
+import type { ListeningPack, ListeningPlayback } from "@/domain/listening-packs";
+
+export interface ListeningRepository {
+  audio: typeof import('./listening-audio').listeningAudio;
+  packs(): Promise<ListeningPack[]>;
+  playback(session: ListeningSession): Promise<ListeningPlayback>;
+  questions(): Promise<ListeningQuestion[]>;
+  list(): Promise<ListeningSession[]>;
+  create(session: ListeningSession): Promise<void>;
+  answer(id: string, revision: number, key: ListeningKey, now: Date): Promise<ListeningSession>;
+  next(id: string, revision: number, now: Date): Promise<ListeningSession>;
+  progress(id: string, revision: number, seconds: number, now: Date): Promise<ListeningSession>;
+  finish(id: string, revision: number, now: Date): Promise<ListeningSession>;
+}
 
 /**
  * 儲存層介面。畫面只透過這些介面讀寫，之後接雲端（例如 Supabase）時替換實作即可。
@@ -133,6 +148,7 @@ export interface BackupsRepository {
 }
 
 export interface Repositories {
+  listening: ListeningRepository;
   vocabulary: VocabularyRepository;
   settings: SettingsRepository;
   plans: PlansRepository;

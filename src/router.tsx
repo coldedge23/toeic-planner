@@ -13,6 +13,8 @@ export const router = createBrowserRouter(
         { path: "settings", lazy: () => import("./pages/SettingsPage").then((m) => ({ Component: m.SettingsPage })) },
         { path: "plan", lazy: () => import("./pages/PlanPage").then((m) => ({ Component: m.PlanPage })) },
         { path: "mock", lazy: () => import("./pages/MockPage").then((m) => ({ Component: m.MockPage })) },
+        { path: "listening", lazy: () => import("./pages/ListeningPage").then((m) => ({ Component: m.ListeningPage })) },
+        { path: "weakness", lazy: () => import("./pages/WeaknessPage").then((m) => ({ Component: m.WeaknessPage })) },
         { path: "mistakes", lazy: () => import("./pages/MistakesPage").then((m) => ({ Component: m.MistakesPage })) },
         { path: "bank", lazy: () => import("./pages/BankPage").then((m) => ({ Component: m.BankPage })) },
         { path: "vocabulary", lazy: () => import("./pages/VocabularyPage").then((m) => ({ Component: m.VocabularyPage })) },

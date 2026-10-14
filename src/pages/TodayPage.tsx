@@ -45,6 +45,7 @@ export function TodayPage() {
           <StatCard label="連續達標" value="—" note="尚未建立計畫" />
         </div>
         <DailyVocabularyCard />
+        <section className="card"><h2>通勤聽力</h2><p className="card-desc">用 5／10／15 分鐘練習 Part 2；搭車作答或連續收聽。</p><Link className="btn btn-primary" to="/listening">開始聽力練習</Link></section>
         <section className="card">
           <h2>今日任務</h2>
           <p className="notice">
@@ -84,6 +85,7 @@ export function TodayPage() {
       </div>
 
       <DailyVocabularyCard />
+      <section className="card"><h2>通勤聽力</h2><p className="card-desc">用 5／10／15 分鐘練習 Part 2；搭車作答或連續收聽。</p><Link className="btn btn-primary" to="/listening">開始聽力練習</Link></section>
       <section className="card">
         <h2>
           今日任務

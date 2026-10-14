@@ -202,6 +202,7 @@ export function ResultPage() {
           <Link className="btn" to="/mock">
             回到模擬考
           </Link>
+          <Link className="btn" to="/weakness">查看弱點分析</Link>
           {error && (
             <span role="alert" className="status-msg err">
               {error}

@@ -1,4 +1,53 @@
 /* ---------- 設計 token（顏色為影片畫面估計值，非原始色碼） ---------- */
+.weakness-practice { display: flex; flex-direction: column; align-items: flex-start; gap: 8px; }
+@media (max-width: 600px) {
+  .weakness-table, .weakness-table tbody { display: block; }
+  .weakness-table thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+  .weakness-table tbody tr { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; padding: 16px 0; border-bottom: 1px solid var(--c-border); }
+  .weakness-table tbody th, .weakness-table tbody td { display: block; min-width: 0; width: auto; border: 0; padding: 0; text-align: left; }
+  .weakness-table tbody th, .weakness-table .weakness-action { grid-column: 1 / -1; }
+  .weakness-table [data-label]::before { content: attr(data-label); display: block; color: var(--c-muted); font-size: 12px; margin-bottom: 4px; }
+}
+.listening-download { display: flex; justify-content: space-between; align-items: center; gap: 24px; }
+.listening-download .btn { flex-shrink: 0; }
+.listening-pack-select { max-width: 540px; }
+.listening-pack-summary { margin: 12px 0 24px; line-height: 1.7; }
+.listening-start-actions { display: flex; flex-wrap: wrap; gap: 12px; }
+.listening-start-actions .btn, .listening-pack-actions .btn, .listening-legacy .btn { min-height: 48px; }
+.listening-pack-list { list-style: none; padding: 0; margin: 0; }
+.listening-pack-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 24px; padding: 24px 0; border-top: 1px solid var(--c-border); }
+.listening-pack-row h3 { margin: 0 0 8px; }
+.listening-pack-row p { margin: 8px 0; }
+.listening-pack-current { display: inline-block; margin-left: 12px; font-size: 13px; font-weight: 400; }
+.listening-pack-actions { display: flex; flex-direction: column; align-items: stretch; gap: 8px; }
+.listening-legacy { border-top: 1px solid var(--c-border); padding-top: 20px; }
+.listening-legacy .btn { margin: 8px 12px 0 0; }
+.listening-settings { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; }
+.listening-session-head { display: flex; justify-content: space-between; gap: 16px; align-items: baseline; }
+.listening-session-head span { font-size: 13px; color: var(--c-muted); }
+.listening-player audio { width: 100%; margin: 16px 0 24px; }
+.listening-answers { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.listening-choice { min-height: 64px; display: flex; flex-direction: column; gap: 8px; white-space: normal; }
+.listening-choice > span:first-child { font-size: 24px; }
+.listening-selected { border-color: var(--c-primary); background: var(--c-bg); }
+.listening-choice.listening-answered:disabled { opacity: 1; cursor: default; }
+.listening-review { margin-top: 24px; padding: 20px; border: 1px solid var(--c-border); }
+.listening-correct { background: var(--c-correct-bg); }
+.listening-wrong, .listening-error { background: var(--c-wrong-bg); }
+.listening-transcript { font-size: 20px; line-height: 1.6; }
+.listening-end { display: flex; gap: 12px; margin-top: 24px; flex-wrap: wrap; }
+.listening-start, .listening-end .btn { min-height: 48px; }
+@media (max-width: 600px) {
+  .listening-download { display: block; }
+  .listening-settings, .listening-answers { grid-template-columns: 1fr; }
+  .listening-choice { min-height: 56px; flex-direction: row; justify-content: flex-start; align-items: center; text-align: left; flex-wrap: wrap; }
+  .listening-choice > span:first-child { min-width: 28px; }
+  .listening-session-head { display: block; }
+  .listening-review { padding: 16px; }
+  .listening-pack-row { grid-template-columns: 1fr; gap: 12px; }
+  .listening-pack-actions { flex-direction: row; flex-wrap: wrap; }
+  .listening-pack-actions .btn { flex: 1 1 140px; }
+}
 :root {
   --c-sidebar: #0d2235;
   --c-sidebar-active: #1a3550;

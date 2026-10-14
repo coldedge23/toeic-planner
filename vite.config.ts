@@ -17,7 +17,7 @@ export default defineConfig({
       manifest: {
         name: "多益備考 TOEIC PLANNER",
         short_name: "多益備考",
-        description: "個人用 TOEIC 閱讀備考：讀書計畫、模擬考、錯題本",
+        description: "個人用 TOEIC 備考：閱讀、Part 2 聽力、單字與讀書計畫",
         lang: "zh-Hant",
         theme_color: "#0D2235",
         background_color: "#F3EEDF",

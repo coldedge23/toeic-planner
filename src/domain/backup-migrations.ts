@@ -8,6 +8,7 @@ type Raw = Record<string, unknown>;
  * 新增版本時：SCHEMA_VERSION +1，並在這裡補上一個遷移步驟。
  */
 const MIGRATIONS: Record<number, (raw: Raw) => Raw> = {
+  4: (raw) => ({ ...raw, schema_version: 5, listening_sessions: [] }),
   3: (raw) => ({ ...raw, schema_version: 4, vocabulary_words: [], vocabulary_reviews: [], vocabulary_settings: [] }),
   2: (raw) => ({
     ...raw,
