@@ -1,0 +1,452 @@
+[
+  {
+    "id": "L2-031",
+    "version": 1,
+    "status": "approved",
+    "prompt": "When does registration for the workshop close?",
+    "options": {
+      "A": "Please close the window.",
+      "B": "The workshop is on the third floor.",
+      "C": "At noon this Thursday."
+    },
+    "correct_key": "C",
+    "explanation_zh": "When 問截止時間，C 回答週四中午。B 是活動地點；A 把 close 當成關窗，未回應報名期限。",
+    "explanation_en": "Registration closes at noon on Thursday. The question asks about a deadline, not a location.",
+    "tag": "截止時間"
+  },
+  {
+    "id": "L2-032",
+    "version": 1,
+    "status": "approved",
+    "prompt": "Which train should we take to arrive before nine?",
+    "options": {
+      "A": "At platform four.",
+      "B": "The ticket office opens at nine.",
+      "C": "The express leaving at eight ten."
+    },
+    "correct_key": "C",
+    "explanation_zh": "問該搭哪班車，C 指出八點十分出發的快車。A 只提供月台；B 是售票處營業時間。",
+    "explanation_en": "The eight ten express identifies a specific train. A platform number does not tell us which train to take.",
+    "tag": "交通行程"
+  },
+  {
+    "id": "L2-033",
+    "version": 1,
+    "status": "approved",
+    "prompt": "How long has the afternoon appointment been delayed?",
+    "options": {
+      "A": "By about forty minutes.",
+      "B": "In the waiting room.",
+      "C": "I booked it online."
+    },
+    "correct_key": "A",
+    "explanation_zh": "How long 問延後多久，A 回答約四十分鐘。C 說預約方式；B 是等候地點。",
+    "explanation_en": "About forty minutes gives the length of the delay. The other responses give a booking method and a place.",
+    "tag": "延誤時間"
+  },
+  {
+    "id": "L2-034",
+    "version": 1,
+    "status": "approved",
+    "prompt": "Are we still meeting the client at two?",
+    "options": {
+      "A": "She asked to make it half past two.",
+      "B": "There are two copies on the desk.",
+      "C": "The meeting room has new chairs."
+    },
+    "correct_key": "A",
+    "explanation_zh": "問是否仍在兩點會面，A 說客戶要求改為兩點半，間接更正時間。B 重複 two 卻指份數；C 未回答時間。",
+    "explanation_en": "The client requested half past two, so the original meeting time has changed.",
+    "tag": "行程變更"
+  },
+  {
+    "id": "L2-035",
+    "version": 1,
+    "status": "approved",
+    "prompt": "How often does the airport shuttle leave this hotel?",
+    "options": {
+      "A": "At the airport entrance.",
+      "B": "Every half hour until midnight.",
+      "C": "The hotel has forty rooms."
+    },
+    "correct_key": "B",
+    "explanation_zh": "How often 問班次頻率，B 回答每半小時一班直到午夜。A 是地點；C 是房間數。",
+    "explanation_en": "Every half hour describes how frequently the shuttle departs. Until midnight gives the end of service.",
+    "tag": "班次頻率"
+  },
+  {
+    "id": "L2-036",
+    "version": 1,
+    "status": "approved",
+    "prompt": "Would a morning or an afternoon delivery work better?",
+    "options": {
+      "A": "Any time after lunch would be fine.",
+      "B": "The package weighs five kilograms.",
+      "C": "The driver works very carefully."
+    },
+    "correct_key": "A",
+    "explanation_zh": "問上午或下午送達較合適，A 以午餐後表示選下午。C 描述工作態度；B 回答重量。",
+    "explanation_en": "After lunch means the afternoon, so it answers the choice between morning and afternoon delivery.",
+    "tag": "時段選擇"
+  },
+  {
+    "id": "L2-037",
+    "version": 1,
+    "status": "approved",
+    "prompt": "What time should I leave for the station?",
+    "options": {
+      "A": "The station was renovated last year.",
+      "B": "Allow an extra twenty minutes for traffic.",
+      "C": "A return ticket, please."
+    },
+    "correct_key": "B",
+    "explanation_zh": "問何時該出發，B 提醒多留二十分鐘交通時間，提供規劃出發時間的相關建議。A 是車站沿革；C 是購票要求。",
+    "explanation_en": "Allowing extra travel time is useful advice about when to leave. The other responses do not help plan the departure.",
+    "tag": "出發規劃"
+  },
+  {
+    "id": "L2-038",
+    "version": 1,
+    "status": "approved",
+    "prompt": "Has the dentist confirmed your appointment for Friday?",
+    "options": {
+      "A": "I brush my teeth twice a day.",
+      "B": "Yes, I received a reminder this morning.",
+      "C": "The calendar is beside the printer."
+    },
+    "correct_key": "B",
+    "explanation_zh": "問週五預約是否確認，B 說已收到提醒，直接肯定並提供依據。A 是清潔習慣；C 是月曆位置。",
+    "explanation_en": "Receiving a reminder confirms the appointment. A daily habit and the location of a calendar do not answer the question.",
+    "tag": "預約確認"
+  },
+  {
+    "id": "L2-039",
+    "version": 1,
+    "status": "approved",
+    "prompt": "Why has the site visit been moved to next week?",
+    "options": {
+      "A": "At the construction site.",
+      "B": "The building inspection is taking longer than expected.",
+      "C": "The guide visits us regularly."
+    },
+    "correct_key": "B",
+    "explanation_zh": "Why 問延期原因，B 說建物檢查比預期久。A 是地點；C 描述頻率，未說明延期原因。",
+    "explanation_en": "A longer building inspection explains why the visit was postponed until next week.",
+    "tag": "延期原因"
+  },
+  {
+    "id": "L2-040",
+    "version": 1,
+    "status": "approved",
+    "prompt": "Do we have enough time to change trains?",
+    "options": {
+      "A": "There are twenty minutes between connections.",
+      "B": "The fare has changed recently.",
+      "C": "I paid with a credit card."
+    },
+    "correct_key": "A",
+    "explanation_zh": "問轉車時間是否足夠，A 提供兩班車間隔二十分鐘，讓對方判斷。B 混淆 change 的意思；C 說付款方式。",
+    "explanation_en": "The twenty minute connection gives the time available to change trains. A fare change is unrelated.",
+    "tag": "轉乘時間"
+  },
+  {
+    "id": "L2-041",
+    "version": 1,
+    "status": "approved",
+    "prompt": "Could you hold the elevator for a moment?",
+    "options": {
+      "A": "Of course. Take your time.",
+      "B": "It was installed last month.",
+      "C": "The moment has passed."
+    },
+    "correct_key": "A",
+    "explanation_zh": "這是請對方稍等電梯的請求，A 表示同意等待。B 是安裝時間；C 只重複 moment 的字義。",
+    "explanation_en": "Of course accepts the request to keep the elevator open for a moment.",
+    "tag": "協助請求"
+  },
+  {
+    "id": "L2-042",
+    "version": 1,
+    "status": "approved",
+    "prompt": "Would you like to join us for lunch after the presentation?",
+    "options": {
+      "A": "The slides are nearly ready.",
+      "B": "Thanks, but I have another appointment.",
+      "C": "Lunch is usually an hour long."
+    },
+    "correct_key": "B",
+    "explanation_zh": "這是午餐邀請，B 禮貌婉拒並說明另有約。A 談簡報準備；C 談午餐長度，未回應邀請。",
+    "explanation_en": "The speaker politely declines the lunch invitation because of another appointment.",
+    "tag": "邀請婉拒"
+  },
+  {
+    "id": "L2-043",
+    "version": 1,
+    "status": "approved",
+    "prompt": "Shall we book a larger room for the training?",
+    "options": {
+      "A": "The trainer travels by bus.",
+      "B": "That would help. Twelve more people signed up.",
+      "C": "I left my notebook at home."
+    },
+    "correct_key": "B",
+    "explanation_zh": "問是否應訂較大的教室，B 同意並以多十二人報名說明理由。A、C 都未回應場地建議。",
+    "explanation_en": "More participants make a larger room useful, so the response supports the suggestion.",
+    "tag": "建議回應"
+  },
+  {
+    "id": "L2-044",
+    "version": 1,
+    "status": "approved",
+    "prompt": "Can you cover the reception desk at three?",
+    "options": {
+      "A": "The desk is made of wood.",
+      "B": "Three guests checked out yesterday.",
+      "C": "I'm busy then, but Maya could help."
+    },
+    "correct_key": "C",
+    "explanation_zh": "cover 在此指代班，C 說當時沒空但提出其他人選。A 說桌子材質；B 用 three 製造數字干擾。",
+    "explanation_en": "The speaker cannot cover the desk but suggests Maya as an alternative. Cover means to take over the duty.",
+    "tag": "替代人選"
+  },
+  {
+    "id": "L2-045",
+    "version": 1,
+    "status": "approved",
+    "prompt": "Why don't we ask the supplier for a sample first?",
+    "options": {
+      "A": "The supply cabinet is locked.",
+      "B": "The first page is missing.",
+      "C": "Good idea. We can test it before ordering."
+    },
+    "correct_key": "C",
+    "explanation_zh": "Why don't we 是提出建議，C 同意先測試再下單。A 混淆 supplier 與 supply；B 只呼應 first。",
+    "explanation_en": "Why don't we introduces a suggestion. Testing a sample before ordering is a reason to accept it.",
+    "tag": "建議句型"
+  },
+  {
+    "id": "L2-046",
+    "version": 1,
+    "status": "approved",
+    "prompt": "Could I borrow your charger until the meeting ends?",
+    "options": {
+      "A": "The meeting starts upstairs.",
+      "B": "Sure. I'm not using it right now.",
+      "C": "There is no extra charge."
+    },
+    "correct_key": "B",
+    "explanation_zh": "問能否借充電器到會議結束，B 同意並說目前沒在用。A 是會議地點；C 把 charge 當費用。",
+    "explanation_en": "Sure grants permission to borrow the charger. A charge for a service is a different meaning.",
+    "tag": "借用請求"
+  },
+  {
+    "id": "L2-047",
+    "version": 1,
+    "status": "approved",
+    "prompt": "Would you mind checking these figures before I send the report?",
+    "options": {
+      "A": "The report was sent by courier.",
+      "B": "I prefer the blue cover.",
+      "C": "Not at all. I'll look at them now."
+    },
+    "correct_key": "C",
+    "explanation_zh": "Would you mind 是客氣請求，C 的 Not at all 表示不介意，並答應立即核對數字。A、B 未回應核對要求。",
+    "explanation_en": "Not at all means the speaker does not mind checking the figures and agrees to do it now.",
+    "tag": "禮貌請求"
+  },
+  {
+    "id": "L2-048",
+    "version": 1,
+    "status": "approved",
+    "prompt": "Let's take a taxi instead of walking to the venue.",
+    "options": {
+      "A": "The walkway was built recently.",
+      "B": "All right. I'll call one now.",
+      "C": "The event attracted many visitors."
+    },
+    "correct_key": "B",
+    "explanation_zh": "這是改搭計程車的提議，B 接受並表示叫車。A 談步道；C 談活動人數，未回應交通建議。",
+    "explanation_en": "Calling a taxi accepts the suggestion to take one to the venue instead of walking.",
+    "tag": "交通建議"
+  },
+  {
+    "id": "L2-049",
+    "version": 1,
+    "status": "approved",
+    "prompt": "Can we move the discussion online if the roads are flooded?",
+    "options": {
+      "A": "I read about it in a magazine.",
+      "B": "The road is eight kilometers long.",
+      "C": "Yes, I'll send everyone a meeting link."
+    },
+    "correct_key": "C",
+    "explanation_zh": "問若淹水是否可改線上討論，C 同意並準備寄會議連結。B 是道路長度；A 描述閱讀來源。",
+    "explanation_en": "Sending a meeting link makes an online discussion possible, so it answers the request.",
+    "tag": "替代方案"
+  },
+  {
+    "id": "L2-050",
+    "version": 1,
+    "status": "approved",
+    "prompt": "How about taking turns preparing the weekly summary?",
+    "options": {
+      "A": "The next turn is on the left.",
+      "B": "The summary is two pages long.",
+      "C": "That sounds fair. I can do this week's."
+    },
+    "correct_key": "C",
+    "explanation_zh": "How about 提出輪流做週報的建議，C 表示公平並自願先做。A 把 turns 當轉彎；B 是篇幅。",
+    "explanation_en": "The response agrees to share the work and volunteers for the first weekly summary.",
+    "tag": "分工建議"
+  },
+  {
+    "id": "L2-051",
+    "version": 1,
+    "status": "approved",
+    "prompt": "Didn't you already submit the revised budget?",
+    "options": {
+      "A": "The revision contains three sections.",
+      "B": "The annual report has a green cover.",
+      "C": "I'm still waiting for the final cost estimate."
+    },
+    "correct_key": "C",
+    "explanation_zh": "否定問句確認修訂預算是否已提交，C 說仍待最終成本估算，間接表示還未提交。A 只談章節；B 是年報外觀，均未回應提交狀態。",
+    "explanation_en": "Waiting for the final cost estimate implies the revised budget is not ready to submit yet.",
+    "tag": "否定問句"
+  },
+  {
+    "id": "L2-052",
+    "version": 1,
+    "status": "approved",
+    "prompt": "The conference fee includes dinner, doesn't it?",
+    "options": {
+      "A": "The conference is held downtown.",
+      "B": "The dining room seats eighty people.",
+      "C": "Only breakfast is included this year."
+    },
+    "correct_key": "C",
+    "explanation_zh": "附加問句確認費用是否含晚餐，C 更正為今年只含早餐。B 是餐廳容量；A 是會議地點。",
+    "explanation_en": "Only breakfast is included corrects the assumption that the conference fee covers dinner.",
+    "tag": "附加問句"
+  },
+  {
+    "id": "L2-053",
+    "version": 1,
+    "status": "approved",
+    "prompt": "Who is going to lead the tour while Emma is away?",
+    "options": {
+      "A": "The manager hasn't assigned anyone yet.",
+      "B": "She packed a small suitcase.",
+      "C": "The tour lasts ninety minutes."
+    },
+    "correct_key": "A",
+    "explanation_zh": "問 Emma 不在時由誰帶團，A 說主管尚未指派，間接說明人選未定。B、C 分別是行李與時長。",
+    "explanation_en": "No one has been assigned yet, so the person leading the tour has not been decided.",
+    "tag": "人選未定"
+  },
+  {
+    "id": "L2-054",
+    "version": 1,
+    "status": "approved",
+    "prompt": "Why isn't the new catalog on the website yet?",
+    "options": {
+      "A": "The website has a search button.",
+      "B": "I ordered the blue model.",
+      "C": "The product photos still need editing."
+    },
+    "correct_key": "C",
+    "explanation_zh": "問型錄為何尚未上網，C 說產品照片仍需編輯，提供未完成前置工作的原因。A、B 未解釋延遲。",
+    "explanation_en": "The photos are not ready, which explains why the catalog has not been published online.",
+    "tag": "原因推論"
+  },
+  {
+    "id": "L2-055",
+    "version": 1,
+    "status": "approved",
+    "prompt": "You haven't seen my visitor badge, have you?",
+    "options": {
+      "A": "Try the pocket of your jacket.",
+      "B": "The visitor arrived by train.",
+      "C": "I haven't visited that branch."
+    },
+    "correct_key": "A",
+    "explanation_zh": "這是尋找識別證的求助，A 建議查看外套口袋，提供相關線索。B、C 只與 visitor 字詞相關。",
+    "explanation_en": "Suggesting the jacket pocket helps locate the missing badge without giving a direct yes or no answer.",
+    "tag": "間接指引"
+  },
+  {
+    "id": "L2-056",
+    "version": 1,
+    "status": "approved",
+    "prompt": "Can the maintenance team fix the printer today?",
+    "options": {
+      "A": "They won't have the replacement part until tomorrow.",
+      "B": "It prints in color.",
+      "C": "I bought a team jersey."
+    },
+    "correct_key": "A",
+    "explanation_zh": "問今天能否修好，A 說零件明天才到，間接表示今天無法修。B 說功能；C 混淆 team 的情境。",
+    "explanation_en": "The part arrives tomorrow, so the maintenance team cannot complete the repair today.",
+    "tag": "限制條件"
+  },
+  {
+    "id": "L2-057",
+    "version": 1,
+    "status": "approved",
+    "prompt": "Wasn't the application supposed to be submitted yesterday?",
+    "options": {
+      "A": "The applicant lives nearby.",
+      "B": "We were given a two-day extension.",
+      "C": "I use that application on my phone."
+    },
+    "correct_key": "B",
+    "explanation_zh": "否定問句確認原訂申請期限，B 說獲准延長兩天，解釋為何尚可提交。A 混淆 applicant；C 把 application 當手機程式。",
+    "explanation_en": "A two day extension explains why the original submission deadline no longer applies.",
+    "tag": "期限更正"
+  },
+  {
+    "id": "L2-058",
+    "version": 1,
+    "status": "approved",
+    "prompt": "Where should we display the award certificate?",
+    "options": {
+      "A": "Let's see what the designer recommends.",
+      "B": "The ceremony was last Thursday.",
+      "C": "The winner thanked the audience."
+    },
+    "correct_key": "A",
+    "explanation_zh": "問獎狀應展示在哪，A 提議先聽設計師建議，表示位置待決。B、C 談典禮，未協助決定位置。",
+    "explanation_en": "Consulting the designer is an appropriate next step when the display location has not been decided.",
+    "tag": "待確認回應"
+  },
+  {
+    "id": "L2-059",
+    "version": 1,
+    "status": "approved",
+    "prompt": "The guests won't need printed tickets, will they?",
+    "options": {
+      "A": "A confirmation email on their phone is enough.",
+      "B": "The printer is near the entrance.",
+      "C": "The tickets sold out in an hour."
+    },
+    "correct_key": "A",
+    "explanation_zh": "附加問句確認是否不用紙本票，A 說出示手機確認信即可，間接確認不需紙票。B 是印表機位置；C 是銷售狀況。",
+    "explanation_en": "A confirmation email is sufficient, so guests do not need printed tickets.",
+    "tag": "附加問句"
+  },
+  {
+    "id": "L2-060",
+    "version": 1,
+    "status": "approved",
+    "prompt": "Do you know whether the director will attend in person?",
+    "options": {
+      "A": "The attendance sheet is on the table.",
+      "B": "Her assistant is checking her travel arrangements.",
+      "C": "The directory lists all our offices."
+    },
+    "correct_key": "B",
+    "explanation_zh": "問主管是否親自出席，B 說助理仍在確認交通安排，提供相關但尚待確認的狀態。A 是簽到表位置；C 混淆 director 與 directory。",
+    "explanation_en": "The assistant is still checking travel arrangements, so attendance in person is not yet confirmed.",
+    "tag": "待確認回應"
+  }
+]

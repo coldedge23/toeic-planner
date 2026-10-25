@@ -7,6 +7,7 @@ import { listeningMistakes, listeningScore, practiceQuestions } from '@/domain/l
 import { parseBackup } from '@/domain/backup-migrations';
 import { SCHEMA_VERSION, type ListeningSession } from '@/domain/schema';
 import manifest from '@/fixtures/listening-audio.json';
+import batch2Manifest from '@/fixtures/listening-batch2-audio.json';
 import { readFileSync } from 'node:fs';
 import { createHash } from 'node:crypto';
 
@@ -23,15 +24,15 @@ const create = async (mode: 'answer' | 'listen' = 'answer') => {
 };
 
 describe('聽力資料與原創音訊', () => {
-  it('30 題均有三個選項、正解與解說，所有 MP3 實體檔案通過內容雜湊', async () => {
+  it('60 題均有三個選項、正解與解說，兩批 MP3 實體檔案通過內容雜湊', async () => {
     const qs = await repos.listening.questions();
-    expect(qs).toHaveLength(30);
-    expect(new Set(qs.map(q => q.id)).size).toBe(30);
-    expect(new Set(qs.map(q => q.prompt)).size).toBe(30);
+    expect(qs).toHaveLength(60);
+    expect(new Set(qs.map(q => q.id)).size).toBe(60);
+    expect(new Set(qs.map(q => q.prompt)).size).toBe(60);
     for (const q of qs) {
       expect(Object.keys(q.options)).toEqual(['A', 'B', 'C']);
       expect(q.options[q.correct_key].length).toBeGreaterThan(0);
-      expect(manifest.files.some(f => f.name === `${q.id}.mp3`)).toBe(true);
+      expect([...manifest.files, ...batch2Manifest.files].some(f => f.name === `${q.id}.mp3`)).toBe(true);
     }
     for (const file of manifest.files) {
       const bytes = readFileSync(`public/audio/part2-v1/${file.name}`);
@@ -42,6 +43,11 @@ describe('聽力資料與原創音訊', () => {
       expect(p.duration).toBeLessThanOrEqual(p.minutes * 60);
       expect(p.ids.every(id => qs.some(q => q.id === id))).toBe(true);
       expect(p.duration).toBe(manifest.tracks.find(t => t.id === p.ids.at(-1))!.end);
+    }
+    for (const file of batch2Manifest.files) {
+      const bytes = readFileSync(`public/audio/part2-batch2-v1/${file.name}`);
+      expect(bytes.byteLength).toBe(file.bytes);
+      expect(createHash('sha256').update(bytes).digest('hex')).toBe(file.sha256);
     }
   });
   it('短題庫不重複抽題，錯題使用最近一次作答，收聽不影響統計', async () => {

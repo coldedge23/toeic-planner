@@ -698,5 +698,710 @@
         "sha256": "f9b333e0a5e209bbe7d878074976db1c099bb490d22b45e1f47334b9b220945d"
       }
     ]
+  },
+  {
+    "id": "part2-schedules",
+    "version": 1,
+    "title": "時間與行程",
+    "description": "第二批：會議、預約、交通、截止時間與行程變更。",
+    "question_ids": [
+      "L2-031",
+      "L2-032",
+      "L2-033",
+      "L2-034",
+      "L2-035",
+      "L2-036",
+      "L2-037",
+      "L2-038",
+      "L2-039",
+      "L2-040"
+    ],
+    "questions": [
+      {
+        "id": "L2-031",
+        "version": 1,
+        "file": {
+          "path": "audio/part2-batch2-v1/L2-031.mp3",
+          "bytes": 112608,
+          "sha256": "10e5ef73284ceda0b17634de73ab61665ebdc081d734648f95ecb9b54350acea"
+        }
+      },
+      {
+        "id": "L2-032",
+        "version": 1,
+        "file": {
+          "path": "audio/part2-batch2-v1/L2-032.mp3",
+          "bytes": 115488,
+          "sha256": "4824569cbd3e6161448c7f3d1a30b5d06f63eaefd9015cd76a996d1748f84024"
+        }
+      },
+      {
+        "id": "L2-033",
+        "version": 1,
+        "file": {
+          "path": "audio/part2-batch2-v1/L2-033.mp3",
+          "bytes": 107712,
+          "sha256": "181d3e8562123184384552c15e9f1cb63464c2110faedc9bed5a0df6a11b8ca9"
+        }
+      },
+      {
+        "id": "L2-034",
+        "version": 1,
+        "file": {
+          "path": "audio/part2-batch2-v1/L2-034.mp3",
+          "bytes": 116640,
+          "sha256": "76026a2af5d9b4f459f327b56447496213d30809e2a4376679a11a0fccefe188"
+        }
+      },
+      {
+        "id": "L2-035",
+        "version": 1,
+        "file": {
+          "path": "audio/part2-batch2-v1/L2-035.mp3",
+          "bytes": 118944,
+          "sha256": "cd6ad8a1eb1b462b021a94c260174330ba67eb6054e11edcde8512f58cc58211"
+        }
+      },
+      {
+        "id": "L2-036",
+        "version": 1,
+        "file": {
+          "path": "audio/part2-batch2-v1/L2-036.mp3",
+          "bytes": 125856,
+          "sha256": "cbb25e26f9025551626e18c90efc1e5b03c0c1a6a26591a03a18f8b0f8456441"
+        }
+      },
+      {
+        "id": "L2-037",
+        "version": 1,
+        "file": {
+          "path": "audio/part2-batch2-v1/L2-037.mp3",
+          "bytes": 124128,
+          "sha256": "6c9bca4a172f33c7cd00df1853156b625de7734dd6ab50e579bedadc71c30b9d"
+        }
+      },
+      {
+        "id": "L2-038",
+        "version": 1,
+        "file": {
+          "path": "audio/part2-batch2-v1/L2-038.mp3",
+          "bytes": 131040,
+          "sha256": "1e47fab6405118d8677d01c75ea15342cc4fe86f738aa7a15390b9d889ea9cab"
+        }
+      },
+      {
+        "id": "L2-039",
+        "version": 1,
+        "file": {
+          "path": "audio/part2-batch2-v1/L2-039.mp3",
+          "bytes": 126144,
+          "sha256": "01be24b5070298bc6e80698a8d123157a1f7706bc5b3a5027ec16cd44e4c4594"
+        }
+      },
+      {
+        "id": "L2-040",
+        "version": 1,
+        "file": {
+          "path": "audio/part2-batch2-v1/L2-040.mp3",
+          "bytes": 119520,
+          "sha256": "29cf6ad921f36c0c18dac145e1a66297552b10bc38096985166f4f491c425761"
+        }
+      }
+    ],
+    "playlists": [
+      {
+        "minutes": 5,
+        "ids": [
+          "L2-031",
+          "L2-032",
+          "L2-033",
+          "L2-034",
+          "L2-035",
+          "L2-036",
+          "L2-037",
+          "L2-038"
+        ],
+        "duration": 276.12,
+        "file": {
+          "path": "audio/part2-packs/part2-schedules/v1/continuous-8.mp3",
+          "bytes": 2209536,
+          "sha256": "78690d4e094ec34ef1c0a7e21e9cabf92d41b81e79e55425bdccca05de41ff7c"
+        }
+      },
+      {
+        "minutes": 10,
+        "ids": [
+          "L2-031",
+          "L2-032",
+          "L2-033",
+          "L2-034",
+          "L2-035",
+          "L2-036",
+          "L2-037",
+          "L2-038",
+          "L2-039",
+          "L2-040"
+        ],
+        "duration": 345.555,
+        "file": {
+          "path": "audio/part2-packs/part2-schedules/v1/continuous-10.mp3",
+          "bytes": 2765088,
+          "sha256": "ef3c9b56de785ee574713ff8f275b61371d8a861832e6743a11ba90dd885016e"
+        }
+      },
+      {
+        "minutes": 15,
+        "ids": [
+          "L2-031",
+          "L2-032",
+          "L2-033",
+          "L2-034",
+          "L2-035",
+          "L2-036",
+          "L2-037",
+          "L2-038",
+          "L2-039",
+          "L2-040"
+        ],
+        "duration": 345.555,
+        "file": {
+          "path": "audio/part2-packs/part2-schedules/v1/continuous-10.mp3",
+          "bytes": 2765088,
+          "sha256": "ef3c9b56de785ee574713ff8f275b61371d8a861832e6743a11ba90dd885016e"
+        }
+      }
+    ],
+    "files": [
+      {
+        "path": "audio/part2-batch2-v1/L2-031.mp3",
+        "bytes": 112608,
+        "sha256": "10e5ef73284ceda0b17634de73ab61665ebdc081d734648f95ecb9b54350acea"
+      },
+      {
+        "path": "audio/part2-batch2-v1/L2-032.mp3",
+        "bytes": 115488,
+        "sha256": "4824569cbd3e6161448c7f3d1a30b5d06f63eaefd9015cd76a996d1748f84024"
+      },
+      {
+        "path": "audio/part2-batch2-v1/L2-033.mp3",
+        "bytes": 107712,
+        "sha256": "181d3e8562123184384552c15e9f1cb63464c2110faedc9bed5a0df6a11b8ca9"
+      },
+      {
+        "path": "audio/part2-batch2-v1/L2-034.mp3",
+        "bytes": 116640,
+        "sha256": "76026a2af5d9b4f459f327b56447496213d30809e2a4376679a11a0fccefe188"
+      },
+      {
+        "path": "audio/part2-batch2-v1/L2-035.mp3",
+        "bytes": 118944,
+        "sha256": "cd6ad8a1eb1b462b021a94c260174330ba67eb6054e11edcde8512f58cc58211"
+      },
+      {
+        "path": "audio/part2-batch2-v1/L2-036.mp3",
+        "bytes": 125856,
+        "sha256": "cbb25e26f9025551626e18c90efc1e5b03c0c1a6a26591a03a18f8b0f8456441"
+      },
+      {
+        "path": "audio/part2-batch2-v1/L2-037.mp3",
+        "bytes": 124128,
+        "sha256": "6c9bca4a172f33c7cd00df1853156b625de7734dd6ab50e579bedadc71c30b9d"
+      },
+      {
+        "path": "audio/part2-batch2-v1/L2-038.mp3",
+        "bytes": 131040,
+        "sha256": "1e47fab6405118d8677d01c75ea15342cc4fe86f738aa7a15390b9d889ea9cab"
+      },
+      {
+        "path": "audio/part2-batch2-v1/L2-039.mp3",
+        "bytes": 126144,
+        "sha256": "01be24b5070298bc6e80698a8d123157a1f7706bc5b3a5027ec16cd44e4c4594"
+      },
+      {
+        "path": "audio/part2-batch2-v1/L2-040.mp3",
+        "bytes": 119520,
+        "sha256": "29cf6ad921f36c0c18dac145e1a66297552b10bc38096985166f4f491c425761"
+      },
+      {
+        "path": "audio/part2-packs/part2-schedules/v1/continuous-8.mp3",
+        "bytes": 2209536,
+        "sha256": "78690d4e094ec34ef1c0a7e21e9cabf92d41b81e79e55425bdccca05de41ff7c"
+      },
+      {
+        "path": "audio/part2-packs/part2-schedules/v1/continuous-10.mp3",
+        "bytes": 2765088,
+        "sha256": "ef3c9b56de785ee574713ff8f275b61371d8a861832e6743a11ba90dd885016e"
+      }
+    ]
+  },
+  {
+    "id": "part2-requests",
+    "version": 1,
+    "title": "請求與建議",
+    "description": "第二批：協助、邀請、禮貌婉拒、分工與替代方案。",
+    "question_ids": [
+      "L2-041",
+      "L2-042",
+      "L2-043",
+      "L2-044",
+      "L2-045",
+      "L2-046",
+      "L2-047",
+      "L2-048",
+      "L2-049",
+      "L2-050"
+    ],
+    "questions": [
+      {
+        "id": "L2-041",
+        "version": 1,
+        "file": {
+          "path": "audio/part2-batch2-v1/L2-041.mp3",
+          "bytes": 116640,
+          "sha256": "466036c11630732dd74ad73a58efb643e0dce0a9a34278af40cac4ff72f12c46"
+        }
+      },
+      {
+        "id": "L2-042",
+        "version": 1,
+        "file": {
+          "path": "audio/part2-batch2-v1/L2-042.mp3",
+          "bytes": 126144,
+          "sha256": "595903a204e80fce3b84954ab7594ab2f075df311edb4b37969edc55f54914fd"
+        }
+      },
+      {
+        "id": "L2-043",
+        "version": 1,
+        "file": {
+          "path": "audio/part2-batch2-v1/L2-043.mp3",
+          "bytes": 129024,
+          "sha256": "985d47e94982cfc169936b1992145265e36bc63a770852f1e3af5acd1b66d302"
+        }
+      },
+      {
+        "id": "L2-044",
+        "version": 1,
+        "file": {
+          "path": "audio/part2-batch2-v1/L2-044.mp3",
+          "bytes": 119232,
+          "sha256": "231925bdf91ec27ca793a03c4594721d69e190fb3c177080d3fccd7774090ec1"
+        }
+      },
+      {
+        "id": "L2-045",
+        "version": 1,
+        "file": {
+          "path": "audio/part2-batch2-v1/L2-045.mp3",
+          "bytes": 133632,
+          "sha256": "c1e8ac79b1e922d30f6209f273c7ee220dae1286f3271b843673a8f86ab38799"
+        }
+      },
+      {
+        "id": "L2-046",
+        "version": 1,
+        "file": {
+          "path": "audio/part2-batch2-v1/L2-046.mp3",
+          "bytes": 125280,
+          "sha256": "7ebc50beca3f7dd3a6eef43d91c31e1163a9da57ba50932946e2c2bebbec4789"
+        }
+      },
+      {
+        "id": "L2-047",
+        "version": 1,
+        "file": {
+          "path": "audio/part2-batch2-v1/L2-047.mp3",
+          "bytes": 128448,
+          "sha256": "b2f285fb3ed10754af7b0b5a7c88d9ddbc11fb94b76244604432da994296c4ed"
+        }
+      },
+      {
+        "id": "L2-048",
+        "version": 1,
+        "file": {
+          "path": "audio/part2-batch2-v1/L2-048.mp3",
+          "bytes": 129024,
+          "sha256": "327af8aabdedac612ac817b9c5f6b668c5c466bb293d5b748fd1175d30f89dce"
+        }
+      },
+      {
+        "id": "L2-049",
+        "version": 1,
+        "file": {
+          "path": "audio/part2-batch2-v1/L2-049.mp3",
+          "bytes": 130752,
+          "sha256": "71784ef71867e78fdb39f60ab3e9276cec63d884c319d16acb64e9d497d6359c"
+        }
+      },
+      {
+        "id": "L2-050",
+        "version": 1,
+        "file": {
+          "path": "audio/part2-batch2-v1/L2-050.mp3",
+          "bytes": 132768,
+          "sha256": "f176c70aa08590269a141ebf8cbf95c2bfc2256baf2545b5d213d5f1eb53e358"
+        }
+      }
+    ],
+    "playlists": [
+      {
+        "minutes": 5,
+        "ids": [
+          "L2-041",
+          "L2-042",
+          "L2-043",
+          "L2-044",
+          "L2-045",
+          "L2-046",
+          "L2-047",
+          "L2-048"
+        ],
+        "duration": 276.885,
+        "file": {
+          "path": "audio/part2-packs/part2-requests/v1/continuous-8.mp3",
+          "bytes": 2215872,
+          "sha256": "3c2d0d6111189c040a1c27e0edba2a6e31ebe21c7fe95935a13aa5f7ffa23fb1"
+        }
+      },
+      {
+        "minutes": 10,
+        "ids": [
+          "L2-041",
+          "L2-042",
+          "L2-043",
+          "L2-044",
+          "L2-045",
+          "L2-046",
+          "L2-047",
+          "L2-048",
+          "L2-049",
+          "L2-050"
+        ],
+        "duration": 347.835,
+        "file": {
+          "path": "audio/part2-packs/part2-requests/v1/continuous-10.mp3",
+          "bytes": 2783520,
+          "sha256": "3dfd9a7a0114c4dcc0616c82164acf4286c172fc5f2782cc8107c25f0762d787"
+        }
+      },
+      {
+        "minutes": 15,
+        "ids": [
+          "L2-041",
+          "L2-042",
+          "L2-043",
+          "L2-044",
+          "L2-045",
+          "L2-046",
+          "L2-047",
+          "L2-048",
+          "L2-049",
+          "L2-050"
+        ],
+        "duration": 347.835,
+        "file": {
+          "path": "audio/part2-packs/part2-requests/v1/continuous-10.mp3",
+          "bytes": 2783520,
+          "sha256": "3dfd9a7a0114c4dcc0616c82164acf4286c172fc5f2782cc8107c25f0762d787"
+        }
+      }
+    ],
+    "files": [
+      {
+        "path": "audio/part2-batch2-v1/L2-041.mp3",
+        "bytes": 116640,
+        "sha256": "466036c11630732dd74ad73a58efb643e0dce0a9a34278af40cac4ff72f12c46"
+      },
+      {
+        "path": "audio/part2-batch2-v1/L2-042.mp3",
+        "bytes": 126144,
+        "sha256": "595903a204e80fce3b84954ab7594ab2f075df311edb4b37969edc55f54914fd"
+      },
+      {
+        "path": "audio/part2-batch2-v1/L2-043.mp3",
+        "bytes": 129024,
+        "sha256": "985d47e94982cfc169936b1992145265e36bc63a770852f1e3af5acd1b66d302"
+      },
+      {
+        "path": "audio/part2-batch2-v1/L2-044.mp3",
+        "bytes": 119232,
+        "sha256": "231925bdf91ec27ca793a03c4594721d69e190fb3c177080d3fccd7774090ec1"
+      },
+      {
+        "path": "audio/part2-batch2-v1/L2-045.mp3",
+        "bytes": 133632,
+        "sha256": "c1e8ac79b1e922d30f6209f273c7ee220dae1286f3271b843673a8f86ab38799"
+      },
+      {
+        "path": "audio/part2-batch2-v1/L2-046.mp3",
+        "bytes": 125280,
+        "sha256": "7ebc50beca3f7dd3a6eef43d91c31e1163a9da57ba50932946e2c2bebbec4789"
+      },
+      {
+        "path": "audio/part2-batch2-v1/L2-047.mp3",
+        "bytes": 128448,
+        "sha256": "b2f285fb3ed10754af7b0b5a7c88d9ddbc11fb94b76244604432da994296c4ed"
+      },
+      {
+        "path": "audio/part2-batch2-v1/L2-048.mp3",
+        "bytes": 129024,
+        "sha256": "327af8aabdedac612ac817b9c5f6b668c5c466bb293d5b748fd1175d30f89dce"
+      },
+      {
+        "path": "audio/part2-batch2-v1/L2-049.mp3",
+        "bytes": 130752,
+        "sha256": "71784ef71867e78fdb39f60ab3e9276cec63d884c319d16acb64e9d497d6359c"
+      },
+      {
+        "path": "audio/part2-batch2-v1/L2-050.mp3",
+        "bytes": 132768,
+        "sha256": "f176c70aa08590269a141ebf8cbf95c2bfc2256baf2545b5d213d5f1eb53e358"
+      },
+      {
+        "path": "audio/part2-packs/part2-requests/v1/continuous-8.mp3",
+        "bytes": 2215872,
+        "sha256": "3c2d0d6111189c040a1c27e0edba2a6e31ebe21c7fe95935a13aa5f7ffa23fb1"
+      },
+      {
+        "path": "audio/part2-packs/part2-requests/v1/continuous-10.mp3",
+        "bytes": 2783520,
+        "sha256": "3dfd9a7a0114c4dcc0616c82164acf4286c172fc5f2782cc8107c25f0762d787"
+      }
+    ]
+  },
+  {
+    "id": "part2-indirect-plus",
+    "version": 1,
+    "title": "間接回應進階",
+    "description": "第二批：原因推論、否定問句、附加問句與待確認回應。",
+    "question_ids": [
+      "L2-051",
+      "L2-052",
+      "L2-053",
+      "L2-054",
+      "L2-055",
+      "L2-056",
+      "L2-057",
+      "L2-058",
+      "L2-059",
+      "L2-060"
+    ],
+    "questions": [
+      {
+        "id": "L2-051",
+        "version": 1,
+        "file": {
+          "path": "audio/part2-batch2-v1/L2-051.mp3",
+          "bytes": 129312,
+          "sha256": "fcb9c487c3f7269c253391a2832ac3cfd24fc8772653bd1ccfefaf5cd549e4ed"
+        }
+      },
+      {
+        "id": "L2-052",
+        "version": 1,
+        "file": {
+          "path": "audio/part2-batch2-v1/L2-052.mp3",
+          "bytes": 128448,
+          "sha256": "e4d270a151c1a2519432cf8dc60e39ef9426fe58c7e4eb9d3228977d943f8ac4"
+        }
+      },
+      {
+        "id": "L2-053",
+        "version": 1,
+        "file": {
+          "path": "audio/part2-batch2-v1/L2-053.mp3",
+          "bytes": 124704,
+          "sha256": "87e87237f079511bca9a550fe3f2e61104342ef920fdd39d7462d45b3aed127b"
+        }
+      },
+      {
+        "id": "L2-054",
+        "version": 1,
+        "file": {
+          "path": "audio/part2-batch2-v1/L2-054.mp3",
+          "bytes": 118368,
+          "sha256": "135e6e82a538379c1b87d7d504e0bdfac9450e210b5afeb025ec862191b622f2"
+        }
+      },
+      {
+        "id": "L2-055",
+        "version": 1,
+        "file": {
+          "path": "audio/part2-batch2-v1/L2-055.mp3",
+          "bytes": 120096,
+          "sha256": "524e1475283d173b3407626e14cc42cda920c4c8d65ea215895b7132e5069ed8"
+        }
+      },
+      {
+        "id": "L2-056",
+        "version": 1,
+        "file": {
+          "path": "audio/part2-batch2-v1/L2-056.mp3",
+          "bytes": 117216,
+          "sha256": "091dd3f1c470cb70a7b2501bbe04bf1bbf0a565d832981ed0c3d5ce37548f34f"
+        }
+      },
+      {
+        "id": "L2-057",
+        "version": 1,
+        "file": {
+          "path": "audio/part2-batch2-v1/L2-057.mp3",
+          "bytes": 125280,
+          "sha256": "c9c1178e643df85da838fa29773df7a0622ea7146eb8a3ea0245a8d2e9de80b6"
+        }
+      },
+      {
+        "id": "L2-058",
+        "version": 1,
+        "file": {
+          "path": "audio/part2-batch2-v1/L2-058.mp3",
+          "bytes": 118080,
+          "sha256": "326c4c1312d2478df439287c91ea54e840fc3567f1239b59913ec9da7ad3a41c"
+        }
+      },
+      {
+        "id": "L2-059",
+        "version": 1,
+        "file": {
+          "path": "audio/part2-batch2-v1/L2-059.mp3",
+          "bytes": 127296,
+          "sha256": "a765d1aac1dd1349ef6dc3b2d49664c6360e03dd88a9264e68d9b391564554f3"
+        }
+      },
+      {
+        "id": "L2-060",
+        "version": 1,
+        "file": {
+          "path": "audio/part2-batch2-v1/L2-060.mp3",
+          "bytes": 131616,
+          "sha256": "6804d2de1b68bb00d6c7fb8541ffe3a6b6dad58e2433628749e3c0252d7b043e"
+        }
+      }
+    ],
+    "playlists": [
+      {
+        "minutes": 5,
+        "ids": [
+          "L2-051",
+          "L2-052",
+          "L2-053",
+          "L2-054",
+          "L2-055",
+          "L2-056",
+          "L2-057",
+          "L2-058"
+        ],
+        "duration": 269.655,
+        "file": {
+          "path": "audio/part2-packs/part2-indirect-plus/v1/continuous-8.mp3",
+          "bytes": 2157984,
+          "sha256": "cd47df179b86f9977ddbc833807bce84ce4cfefba400673a6568b080cf13c559"
+        }
+      },
+      {
+        "minutes": 10,
+        "ids": [
+          "L2-051",
+          "L2-052",
+          "L2-053",
+          "L2-054",
+          "L2-055",
+          "L2-056",
+          "L2-057",
+          "L2-058",
+          "L2-059",
+          "L2-060"
+        ],
+        "duration": 340.54,
+        "file": {
+          "path": "audio/part2-packs/part2-indirect-plus/v1/continuous-10.mp3",
+          "bytes": 2725056,
+          "sha256": "4047170d6d89a86f3685b2558372c89248fbadb990f61068c1a959438da3453f"
+        }
+      },
+      {
+        "minutes": 15,
+        "ids": [
+          "L2-051",
+          "L2-052",
+          "L2-053",
+          "L2-054",
+          "L2-055",
+          "L2-056",
+          "L2-057",
+          "L2-058",
+          "L2-059",
+          "L2-060"
+        ],
+        "duration": 340.54,
+        "file": {
+          "path": "audio/part2-packs/part2-indirect-plus/v1/continuous-10.mp3",
+          "bytes": 2725056,
+          "sha256": "4047170d6d89a86f3685b2558372c89248fbadb990f61068c1a959438da3453f"
+        }
+      }
+    ],
+    "files": [
+      {
+        "path": "audio/part2-batch2-v1/L2-051.mp3",
+        "bytes": 129312,
+        "sha256": "fcb9c487c3f7269c253391a2832ac3cfd24fc8772653bd1ccfefaf5cd549e4ed"
+      },
+      {
+        "path": "audio/part2-batch2-v1/L2-052.mp3",
+        "bytes": 128448,
+        "sha256": "e4d270a151c1a2519432cf8dc60e39ef9426fe58c7e4eb9d3228977d943f8ac4"
+      },
+      {
+        "path": "audio/part2-batch2-v1/L2-053.mp3",
+        "bytes": 124704,
+        "sha256": "87e87237f079511bca9a550fe3f2e61104342ef920fdd39d7462d45b3aed127b"
+      },
+      {
+        "path": "audio/part2-batch2-v1/L2-054.mp3",
+        "bytes": 118368,
+        "sha256": "135e6e82a538379c1b87d7d504e0bdfac9450e210b5afeb025ec862191b622f2"
+      },
+      {
+        "path": "audio/part2-batch2-v1/L2-055.mp3",
+        "bytes": 120096,
+        "sha256": "524e1475283d173b3407626e14cc42cda920c4c8d65ea215895b7132e5069ed8"
+      },
+      {
+        "path": "audio/part2-batch2-v1/L2-056.mp3",
+        "bytes": 117216,
+        "sha256": "091dd3f1c470cb70a7b2501bbe04bf1bbf0a565d832981ed0c3d5ce37548f34f"
+      },
+      {
+        "path": "audio/part2-batch2-v1/L2-057.mp3",
+        "bytes": 125280,
+        "sha256": "c9c1178e643df85da838fa29773df7a0622ea7146eb8a3ea0245a8d2e9de80b6"
+      },
+      {
+        "path": "audio/part2-batch2-v1/L2-058.mp3",
+        "bytes": 118080,
+        "sha256": "326c4c1312d2478df439287c91ea54e840fc3567f1239b59913ec9da7ad3a41c"
+      },
+      {
+        "path": "audio/part2-batch2-v1/L2-059.mp3",
+        "bytes": 127296,
+        "sha256": "a765d1aac1dd1349ef6dc3b2d49664c6360e03dd88a9264e68d9b391564554f3"
+      },
+      {
+        "path": "audio/part2-batch2-v1/L2-060.mp3",
+        "bytes": 131616,
+        "sha256": "6804d2de1b68bb00d6c7fb8541ffe3a6b6dad58e2433628749e3c0252d7b043e"
+      },
+      {
+        "path": "audio/part2-packs/part2-indirect-plus/v1/continuous-8.mp3",
+        "bytes": 2157984,
+        "sha256": "cd47df179b86f9977ddbc833807bce84ce4cfefba400673a6568b080cf13c559"
+      },
+      {
+        "path": "audio/part2-packs/part2-indirect-plus/v1/continuous-10.mp3",
+        "bytes": 2725056,
+        "sha256": "4047170d6d89a86f3685b2558372c89248fbadb990f61068c1a959438da3453f"
+      }
+    ]
   }
 ]

@@ -1,6 +1,7 @@
 import { ListeningQuestionSchema, type ListeningSession } from '@/domain/schema';
 import { validateListeningSession } from '@/domain/listening';
 import data from '@/fixtures/listening-part2.json';
+import batch2 from '@/fixtures/listening-part2-batch2.json';
 import type { ListeningRepository } from '../Repository';
 import type { ToeicDB } from './db';
 import { listeningAudio, listeningPacks, resolveListeningPlayback } from '../listening-pack-audio';
@@ -30,7 +31,7 @@ export function createListeningRepository(db: ToeicDB): ListeningRepository {
     },
     async packs() { return structuredClone(listeningPacks); },
     async playback(session) { return resolveListeningPlayback(validateListeningSession(session)); },
-    async questions() { return data.map(q => ListeningQuestionSchema.parse(q)); },
+    async questions() { return [...data, ...batch2].map(q => ListeningQuestionSchema.parse(q)); },
     async list() { return db.listening_sessions.toArray(); },
     async create(input) {
       const s = validateListeningSession(input);

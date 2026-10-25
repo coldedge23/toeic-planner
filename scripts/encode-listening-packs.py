@@ -10,7 +10,14 @@ sys.path.insert(0, str(root / 'node_modules/.audio-tools'))
 import lameenc
 
 definitions = json.loads((root / 'src/fixtures/listening-packs.json').read_text(encoding='utf-8'))
-questions = {q['id']: q for q in json.loads((root / 'src/fixtures/listening-part2.json').read_text(encoding='utf-8'))}
+questions = {q['id']: q for name in ('listening-part2.json', 'listening-part2-batch2.json')
+             for q in json.loads((root / 'src/fixtures' / name).read_text(encoding='utf-8'))}
+singles = {}
+for name, directory in (('listening-audio.json', 'part2-v1'), ('listening-batch2-audio.json', 'part2-batch2-v1')):
+    manifest = json.loads((root / 'src/fixtures' / name).read_text(encoding='utf-8'))
+    for file in manifest['files']:
+        if file['name'].startswith('L2-'):
+            singles[file['name'].removesuffix('.mp3')] = (f"audio/{directory}/{file['name']}", file)
 source = root / 'node_modules/.listening-wav'
 result = []
 
@@ -30,7 +37,9 @@ for definition in definitions:
     for qid in pack['question_ids']:
         q = questions[qid]
         assert q['status'] == 'approved'
-        file = metadata(f'audio/part2-v1/{qid}.mp3')
+        path, expected = singles[qid]
+        file = metadata(path)
+        assert (file['bytes'], file['sha256']) == (expected['bytes'], expected['sha256']), path
         pack['questions'].append({'id': qid, 'version': q['version'], 'file': file})
         pack['files'].append(file)
         joined.extend(pcm(qid + '-question.wav'))

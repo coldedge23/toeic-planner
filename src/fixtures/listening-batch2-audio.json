@@ -1,0 +1,157 @@
+{
+  "version": "part2-batch2-v1",
+  "voice": "Microsoft Zira Desktop (en-US)",
+  "source_sha256": "f4cbda389815e9bad7df26f34153b77075238dc56571acaf12926332fed7fe39",
+  "files": [
+    {
+      "name": "L2-031.mp3",
+      "bytes": 112608,
+      "sha256": "10e5ef73284ceda0b17634de73ab61665ebdc081d734648f95ecb9b54350acea"
+    },
+    {
+      "name": "L2-032.mp3",
+      "bytes": 115488,
+      "sha256": "4824569cbd3e6161448c7f3d1a30b5d06f63eaefd9015cd76a996d1748f84024"
+    },
+    {
+      "name": "L2-033.mp3",
+      "bytes": 107712,
+      "sha256": "181d3e8562123184384552c15e9f1cb63464c2110faedc9bed5a0df6a11b8ca9"
+    },
+    {
+      "name": "L2-034.mp3",
+      "bytes": 116640,
+      "sha256": "76026a2af5d9b4f459f327b56447496213d30809e2a4376679a11a0fccefe188"
+    },
+    {
+      "name": "L2-035.mp3",
+      "bytes": 118944,
+      "sha256": "cd6ad8a1eb1b462b021a94c260174330ba67eb6054e11edcde8512f58cc58211"
+    },
+    {
+      "name": "L2-036.mp3",
+      "bytes": 125856,
+      "sha256": "cbb25e26f9025551626e18c90efc1e5b03c0c1a6a26591a03a18f8b0f8456441"
+    },
+    {
+      "name": "L2-037.mp3",
+      "bytes": 124128,
+      "sha256": "6c9bca4a172f33c7cd00df1853156b625de7734dd6ab50e579bedadc71c30b9d"
+    },
+    {
+      "name": "L2-038.mp3",
+      "bytes": 131040,
+      "sha256": "1e47fab6405118d8677d01c75ea15342cc4fe86f738aa7a15390b9d889ea9cab"
+    },
+    {
+      "name": "L2-039.mp3",
+      "bytes": 126144,
+      "sha256": "01be24b5070298bc6e80698a8d123157a1f7706bc5b3a5027ec16cd44e4c4594"
+    },
+    {
+      "name": "L2-040.mp3",
+      "bytes": 119520,
+      "sha256": "29cf6ad921f36c0c18dac145e1a66297552b10bc38096985166f4f491c425761"
+    },
+    {
+      "name": "L2-041.mp3",
+      "bytes": 116640,
+      "sha256": "466036c11630732dd74ad73a58efb643e0dce0a9a34278af40cac4ff72f12c46"
+    },
+    {
+      "name": "L2-042.mp3",
+      "bytes": 126144,
+      "sha256": "595903a204e80fce3b84954ab7594ab2f075df311edb4b37969edc55f54914fd"
+    },
+    {
+      "name": "L2-043.mp3",
+      "bytes": 129024,
+      "sha256": "985d47e94982cfc169936b1992145265e36bc63a770852f1e3af5acd1b66d302"
+    },
+    {
+      "name": "L2-044.mp3",
+      "bytes": 119232,
+      "sha256": "231925bdf91ec27ca793a03c4594721d69e190fb3c177080d3fccd7774090ec1"
+    },
+    {
+      "name": "L2-045.mp3",
+      "bytes": 133632,
+      "sha256": "c1e8ac79b1e922d30f6209f273c7ee220dae1286f3271b843673a8f86ab38799"
+    },
+    {
+      "name": "L2-046.mp3",
+      "bytes": 125280,
+      "sha256": "7ebc50beca3f7dd3a6eef43d91c31e1163a9da57ba50932946e2c2bebbec4789"
+    },
+    {
+      "name": "L2-047.mp3",
+      "bytes": 128448,
+      "sha256": "b2f285fb3ed10754af7b0b5a7c88d9ddbc11fb94b76244604432da994296c4ed"
+    },
+    {
+      "name": "L2-048.mp3",
+      "bytes": 129024,
+      "sha256": "327af8aabdedac612ac817b9c5f6b668c5c466bb293d5b748fd1175d30f89dce"
+    },
+    {
+      "name": "L2-049.mp3",
+      "bytes": 130752,
+      "sha256": "71784ef71867e78fdb39f60ab3e9276cec63d884c319d16acb64e9d497d6359c"
+    },
+    {
+      "name": "L2-050.mp3",
+      "bytes": 132768,
+      "sha256": "f176c70aa08590269a141ebf8cbf95c2bfc2256baf2545b5d213d5f1eb53e358"
+    },
+    {
+      "name": "L2-051.mp3",
+      "bytes": 129312,
+      "sha256": "fcb9c487c3f7269c253391a2832ac3cfd24fc8772653bd1ccfefaf5cd549e4ed"
+    },
+    {
+      "name": "L2-052.mp3",
+      "bytes": 128448,
+      "sha256": "e4d270a151c1a2519432cf8dc60e39ef9426fe58c7e4eb9d3228977d943f8ac4"
+    },
+    {
+      "name": "L2-053.mp3",
+      "bytes": 124704,
+      "sha256": "87e87237f079511bca9a550fe3f2e61104342ef920fdd39d7462d45b3aed127b"
+    },
+    {
+      "name": "L2-054.mp3",
+      "bytes": 118368,
+      "sha256": "135e6e82a538379c1b87d7d504e0bdfac9450e210b5afeb025ec862191b622f2"
+    },
+    {
+      "name": "L2-055.mp3",
+      "bytes": 120096,
+      "sha256": "524e1475283d173b3407626e14cc42cda920c4c8d65ea215895b7132e5069ed8"
+    },
+    {
+      "name": "L2-056.mp3",
+      "bytes": 117216,
+      "sha256": "091dd3f1c470cb70a7b2501bbe04bf1bbf0a565d832981ed0c3d5ce37548f34f"
+    },
+    {
+      "name": "L2-057.mp3",
+      "bytes": 125280,
+      "sha256": "c9c1178e643df85da838fa29773df7a0622ea7146eb8a3ea0245a8d2e9de80b6"
+    },
+    {
+      "name": "L2-058.mp3",
+      "bytes": 118080,
+      "sha256": "326c4c1312d2478df439287c91ea54e840fc3567f1239b59913ec9da7ad3a41c"
+    },
+    {
+      "name": "L2-059.mp3",
+      "bytes": 127296,
+      "sha256": "a765d1aac1dd1349ef6dc3b2d49664c6360e03dd88a9264e68d9b391564554f3"
+    },
+    {
+      "name": "L2-060.mp3",
+      "bytes": 131616,
+      "sha256": "6804d2de1b68bb00d6c7fb8541ffe3a6b6dad58e2433628749e3c0252d7b043e"
+    }
+  ]
+}

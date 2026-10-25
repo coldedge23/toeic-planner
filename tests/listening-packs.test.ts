@@ -49,10 +49,43 @@ async function sessionFor(pack: ListeningPack, mode: 'answer' | 'listen' = 'answ
 }
 
 describe('可選且獨立下載的聽力題包', () => {
-  it('完整分成 14／10／6 題且不重複；各包單段收聽音檔與清單一致', async () => {
-    expect(packs.map(p => p.question_ids.length)).toEqual([14, 10, 6]);
+  it.each([3, 4, 5])('第二批題包 %i 可獨立下載、作答及續聽，移除後保留新舊紀錄', async index => {
+    const pack = packs[index];
+    const key = listeningPackKey(pack);
+    await repos.listening.audio.download(key, () => {});
+    expect((await repos.listening.audio.status(key)).ready).toBe(true);
+    expect((await repos.listening.audio.status(listeningPackKey(packs[0]))).count).toBe(0);
+    let old = await sessionFor(packs[0], 'answer');
+    old = await repos.listening.answer(old.id, old.revision, 'A', now);
+    await repos.listening.finish(old.id, old.revision, now);
+    let answer = await sessionFor(pack, 'answer', 15);
+    expect(answer.question_snapshot).toHaveLength(10);
+    expect(new Set(answer.question_snapshot.map(q => q.id)).size).toBe(10);
+    answer = await repos.listening.answer(answer.id, answer.revision, answer.question_snapshot[0].correct_key, now);
+    const single = await repos.listening.playback(answer);
+    expect(single.file.path).toContain('part2-batch2-v1/');
+    expect((await repos.listening.audio.source(single)).startsWith('blob:')).toBe(true);
+    await repos.listening.finish(answer.id, answer.revision, now);
+    const listen = await sessionFor(pack, 'listen', 15);
+    const saved = await repos.listening.progress(listen.id, listen.revision, 42, now);
+    db.close(); await db.open();
+    expect((await repos.listening.list()).find(s => s.id === listen.id)).toEqual(saved);
+    const playback = await repos.listening.playback(saved);
+    expect(playback.file).toEqual(playlistFor(pack, 15).file);
+    expect((await repos.listening.audio.source(playback)).startsWith('blob:')).toBe(true);
+    await expect(repos.listening.audio.remove(key)).rejects.toThrow('進行中');
+    await repos.listening.finish(saved.id, saved.revision, now);
+    const before = await repos.backups.exportAll();
+    await repos.listening.audio.remove(key);
+    const after = await repos.backups.exportAll();
+    expect({ ...after, exported_at: before.exported_at }).toEqual(before);
+    expect((await repos.listening.audio.status(key)).count).toBe(0);
+    expect(SCHEMA_VERSION).toBe(5);
+  });
+  it('兩批共六包 60 題且不重複；各包單段收聽音檔與清單一致', async () => {
+    expect(packs.map(p => p.question_ids.length)).toEqual([14, 10, 6, 10, 10, 10]);
     const ids = packs.flatMap(p => p.question_ids);
-    expect(ids).toHaveLength(30); expect(new Set(ids).size).toBe(30);
+    expect(ids).toHaveLength(60); expect(new Set(ids).size).toBe(60);
     for (const pack of packs) {
       expect(questionsInPack(await repos.listening.questions(), pack).map(q => q.id)).toEqual(pack.question_ids);
       expect(new Set(pack.files.map(f => f.path)).size).toBe(pack.files.length);

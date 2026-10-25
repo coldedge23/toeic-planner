@@ -78,7 +78,7 @@ with sync_playwright() as p:
     page.on('pageerror', lambda e: errors.append(str(e)))
     page.goto(base+'/listening')
     expect(page.get_by_role('heading', name='聽力練習', exact=True)).to_be_visible()
-    expect(page.locator('.listening-pack-row')).to_have_count(3)
+    expect(page.locator('.listening-pack-row')).to_have_count(len(packs))
     for pack in packs:
         expect(packrow(page, pack['title']).get_by_text('尚未下載', exact=True)).to_be_visible()
     download(page,0)

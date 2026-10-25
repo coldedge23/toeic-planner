@@ -214,7 +214,7 @@ export function ListeningPage() {
       <button className="btn" disabled={busy} onClick={() => { player.current?.pause(); void mutate(s => repos.listening.finish(s.id, s.revision, new Date())); }}>結束本次練習</button></div>
     </section>}
 
-    <section className="card" aria-label="離線題包管理"><h2>離線題包</h2><p className="card-desc">共 30 題原創美式英語合成音訊。只下載需要的包；移除音訊保留學習紀錄。</p>
+    <section className="card" aria-label="離線題包管理"><h2>離線題包</h2><p className="card-desc">共 {questions.filter(q => q.status === 'approved').length} 題原創美式英語合成音訊。只下載需要的包；移除音訊保留學習紀錄。</p>
       <ul className="listening-pack-list">{packs.map(pack => {
         const key = listeningPackKey(pack), status = cacheStates[key];
         const operation = audioOperation?.key === key ? audioOperation : null;
